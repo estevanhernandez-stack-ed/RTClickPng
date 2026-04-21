@@ -1,0 +1,5 @@
+LIBRARY "RTClickPng.ShellExtension"
+
+EXPORTS
+    DllGetClassObject       PRIVATE
+    DllCanUnloadNow         PRIVATE

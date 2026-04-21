@@ -25,6 +25,18 @@ Generated Files/
 *.snk
 *.cer
 *.p7s
+src/Package/*_TemporaryKey.pfx
+
+# MSIX/AppX staging
+AppPackages/
+BundleArtifacts/
+Generated Files/
+
+# Scratch test outputs at repo root
+/heic-out.png
+/webp-out.png
+/out.png
+/*.png
 
 # Native build artifacts
 build/vcpkg/

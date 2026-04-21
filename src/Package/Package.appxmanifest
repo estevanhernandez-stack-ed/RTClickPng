@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  IgnorableNamespaces="uap uap10 rescap desktop4 desktop5 com">
+
+  <Identity
+    Name="626labs.RTClickPng"
+    Publisher="CN=626 Labs Dev (Self-Signed)"
+    Version="0.1.0.0"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>Right Click PNG</DisplayName>
+    <PublisherDisplayName>626 Labs</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop"
+                        MinVersion="10.0.22621.0"
+                        MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-US" />
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+                 Executable="RTClickPng.Engine.exe"
+                 EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Right Click PNG"
+        Description="Convert images to PNG from the right-click context menu. No network calls, no detours."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"
+                         Square310x310Logo="Assets\Square310x310Logo.png" />
+        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      </uap:VisualElements>
+
+      <Extensions>
+        <!-- COM registration for the ShellExtension DLL. -->
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:SurrogateServer DisplayName="Right Click PNG Shell Extension">
+              <com:Class Id="68730B57-152E-4BC9-A158-3A03EE03465A"
+                         Path="ShellExtension.dll"
+                         ThreadingModel="STA" />
+            </com:SurrogateServer>
+          </com:ComServer>
+        </com:Extension>
+
+        <!-- Wire the CLSID into the modern file-explorer context menu for supported image types. -->
+        <desktop4:Extension Category="windows.fileExplorerContextMenus">
+          <desktop4:FileExplorerContextMenus>
+            <desktop5:ItemType Type=".webp">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".avif">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".heic">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".heif">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".jpg">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".jpeg">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".png">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".bmp">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".tif">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".tiff">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".gif">
+              <desktop5:Verb Id="ConvertToPng" Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+            </desktop5:ItemType>
+          </desktop4:FileExplorerContextMenus>
+        </desktop4:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>
