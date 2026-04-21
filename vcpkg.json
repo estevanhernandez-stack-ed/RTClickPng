@@ -5,7 +5,10 @@
   "description": "Native decoder DLLs for Right Click PNG. libheif explicitly drops its default 'hevc' feature (which pulls GPL-2.0 x265) — we decode HEIC only, and libde265 (LGPL-3.0) is a core dep.",
   "dependencies": [
     "libwebp",
-    "libavif",
+    {
+      "name": "libavif",
+      "features": ["dav1d"]
+    },
     {
       "name": "libheif",
       "default-features": false

@@ -7,6 +7,7 @@
     <AssemblyName>RTClickPng.Engine</AssemblyName>
     <PublishAot>true</PublishAot>
     <IsAotCompatible>true</IsAotCompatible>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TrimMode>full</TrimMode>
     <StripSymbols>true</StripSymbols>
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
@@ -20,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
+    <InternalsVisibleTo Include="Engine.Tests" />
   </ItemGroup>
 
   <!-- Ship native decoder DLLs alongside the AOT exe -->

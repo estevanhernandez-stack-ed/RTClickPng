@@ -1,9 +1,11 @@
+using RTClickPng.Engine.Decoders;
+using RTClickPng.Engine.Encoders;
+
 namespace RTClickPng.Engine;
 
 /// <summary>
-/// Handles the <c>copy &lt;src&gt;</c> verb — produces PNG bytes on stdout with a 4-byte length prefix
-/// so the Shell Extension can safely bound the read. STUB: parses arg, emits TODO.
-/// Full encode pipeline lands in checklist item 3.
+/// Handles the <c>copy &lt;src&gt;</c> verb — decodes the source and writes PNG bytes to stdout
+/// with a 4-byte big-endian length prefix, so the Shell Extension can safely bound the pipe read.
 /// </summary>
 internal static class CopyCommand
 {
@@ -16,10 +18,45 @@ internal static class CopyCommand
         }
 
         var source = args[0];
+        if (!File.Exists(source))
+        {
+            Console.Error.WriteLine($"copy: source not found: {source}");
+            return (int)ExitCode.SourceNotFound;
+        }
 
-        // STUB — real decode + png-encode-to-stdout wiring is item 3.
-        _ = source;
-        Console.Out.WriteLine("TODO");
-        return (int)ExitCode.Success;
+        try
+        {
+            var srcBytes = File.ReadAllBytes(source);
+            var srcExt = Path.GetExtension(source);
+
+            IImageDecoder decoder;
+            try { decoder = FormatRegistry.DecoderForExtension(srcExt); }
+            catch (DecoderException ex)
+            {
+                Console.Error.WriteLine($"copy: {ex.Message}");
+                return (int)ExitCode.FormatUnsupported;
+            }
+
+            var image = decoder.Decode(srcBytes);
+
+            using var mem = new MemoryStream();
+            new PngEncoder().Encode(image, mem);
+            mem.Flush();
+            var png = mem.ToArray();
+
+            using var stdout = Console.OpenStandardOutput();
+            // Big-endian length prefix (matches Shell Extension reader in item 8).
+            Span<byte> len = stackalloc byte[4];
+            len[0] = (byte)((png.Length >> 24) & 0xFF);
+            len[1] = (byte)((png.Length >> 16) & 0xFF);
+            len[2] = (byte)((png.Length >>  8) & 0xFF);
+            len[3] = (byte)( png.Length        & 0xFF);
+            stdout.Write(len);
+            stdout.Write(png, 0, png.Length);
+            return (int)ExitCode.Success;
+        }
+        catch (DecoderException ex) { Console.Error.WriteLine($"copy: {ex.Message}"); return (int)ExitCode.FormatUnsupported; }
+        catch (EncoderException ex) { Console.Error.WriteLine($"copy: {ex.Message}"); return (int)ExitCode.OutputFailed; }
+        catch (IOException ex)       { Console.Error.WriteLine($"copy: {ex.Message}"); return (int)ExitCode.OutputFailed; }
     }
 }
