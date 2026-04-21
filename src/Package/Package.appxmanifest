@@ -69,70 +69,70 @@
         <desktop4:Extension Category="windows.fileExplorerContextMenus">
           <desktop4:FileExplorerContextMenus>
             <desktop5:ItemType Type=".webp">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".avif">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".heic">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".heif">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".jpg">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".jpeg">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".png">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".bmp">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".tif">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".tiff">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".gif">
-              <desktop5:Verb Id="ConvertToPng"  Clsid="{68730B57-152E-4BC9-A158-3A03EE03465A}" />
-              <desktop5:Verb Id="CopyAsPng"     Clsid="{D1407350-4611-4621-802E-475C82006858}" />
-              <desktop5:Verb Id="ConvertToJpeg" Clsid="{DC177957-7F24-486D-B4CB-D69FA4580C8F}" />
-              <desktop5:Verb Id="CopyAsJpeg"    Clsid="{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}" />
+              <desktop5:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
+              <desktop5:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
+              <desktop5:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
+              <desktop5:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
             </desktop5:ItemType>
           </desktop4:FileExplorerContextMenus>
         </desktop4:Extension>
