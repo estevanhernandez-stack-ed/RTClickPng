@@ -1,0 +1,112 @@
+Right Click PNG — Third-Party Notices
+=====================================
+
+This app bundles native decoder/encoder libraries distributed under the licenses
+reproduced below. Full compliance reasoning is in docs/licenses.md.
+
+Transitive build dependency versions come from vcpkg manifest in vcpkg.json.
+The exact vcpkg commit hash used for the current build is recorded in
+docs/licenses.md during each Store submission.
+
+---------------------------------------------------------------------------
+libwebp  -  BSD-3-Clause
+https://chromium.googlesource.com/webm/libwebp
+---------------------------------------------------------------------------
+
+Copyright (c) 2010, Google Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+
+  * Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+  * Neither the name of Google nor the names of its contributors may be used
+    to endorse or promote products derived from this software without specific
+    prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES [...] (full text shipped with libwebp
+source at https://chromium.googlesource.com/webm/libwebp/+/HEAD/COPYING).
+
+---------------------------------------------------------------------------
+libavif  -  BSD-2-Clause
+https://github.com/AOMediaCodec/libavif
+---------------------------------------------------------------------------
+
+Copyright 2019 Joe Drago. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+[full BSD-2-Clause text shipped with libavif source at
+https://github.com/AOMediaCodec/libavif/blob/main/LICENSE].
+
+---------------------------------------------------------------------------
+libheif  -  LGPL-3.0-or-later
+https://github.com/strukturag/libheif
+---------------------------------------------------------------------------
+
+libheif is distributed under the GNU Lesser General Public License v3.0 or
+later. Right Click PNG dynamically links to libheif.dll, bundled in this
+MSIX. Under LGPL-3.0 §4, you may replace the bundled libheif.dll with a
+modified version. To do so:
+
+  1. Obtain libheif source from https://github.com/strukturag/libheif
+  2. Build a compatible x64 Windows DLL (see build/fetch-native.ps1 in our
+     public repo for the canonical build recipe).
+  3. Take ownership of %ProgramFiles%\WindowsApps\<RTClickPng-PFN>\ and
+     replace libheif.dll with your build (requires administrator rights).
+
+Full LGPL-3.0 license text:
+https://www.gnu.org/licenses/lgpl-3.0.en.html
+
+Our source code is public: https://github.com/<TBD>/RTClickPng
+(replace with final repo URL once published).
+
+---------------------------------------------------------------------------
+libspng  -  BSD-2-Clause
+https://libspng.org/
+---------------------------------------------------------------------------
+
+Copyright (c) 2018-2023, Randy <randy408@protonmail.com>.
+[full BSD-2-Clause text shipped with libspng source at
+https://github.com/randy408/libspng/blob/master/LICENSE].
+
+---------------------------------------------------------------------------
+libjpeg-turbo  -  IJG + BSD-3-Clause + Zlib
+https://libjpeg-turbo.org/
+---------------------------------------------------------------------------
+
+libjpeg-turbo is covered by three compatible BSD-style licenses. Full text:
+https://github.com/libjpeg-turbo/libjpeg-turbo/blob/main/LICENSE.md
+
+---------------------------------------------------------------------------
+Transitive dependencies
+---------------------------------------------------------------------------
+
+libheif pulls in libde265 (LGPL-3.0) — same compliance path as libheif above.
+libavif pulls in aom (BSD-2-Clause) or dav1d (BSD-2-Clause) depending on
+vcpkg feature selection at build time. The installed component list for
+the current build is captured in build/vcpkg/installed/x64-windows/share/
+after `vcpkg install` runs.
+
+---------------------------------------------------------------------------
+.NET 10 Runtime  -  MIT
+https://github.com/dotnet/runtime/blob/main/LICENSE.TXT
+---------------------------------------------------------------------------
+
+Copyright (c) .NET Foundation and Contributors. Permission is hereby granted,
+free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without
+restriction [...] (full MIT text).
+
+---------------------------------------------------------------------------
+Windows App SDK 1.8  -  MIT
+https://github.com/microsoft/WindowsAppSDK/blob/main/LICENSE
+---------------------------------------------------------------------------
+
+Copyright (c) Microsoft Corporation. (MIT — full text).
