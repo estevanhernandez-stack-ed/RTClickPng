@@ -59,11 +59,19 @@ if ($Clean -and (Test-Path $nativeDir)) {
 
 if (-not (Test-Path $nativeDir)) { New-Item -ItemType Directory -Path $nativeDir | Out-Null }
 
-$binDir = Join-Path $vcpkgDir 'installed/x64-windows/bin'
+# vcpkg manifest mode installs into <manifest-root>/vcpkg_installed/<triplet>/
+$binDir = Join-Path $repoRoot 'vcpkg_installed/x64-windows/bin'
 if (-not (Test-Path $binDir)) { throw "expected vcpkg bin dir missing: $binDir" }
+
+# Reject any GPL-licensed DLLs that might leak in via a default-feature change.
+$gplDenylist = @('libx265.dll', 'x265.dll', 'libx264.dll', 'x264.dll')
 
 Write-Host "==> copying DLLs from $binDir to $nativeDir"
 Get-ChildItem $binDir -Filter '*.dll' | ForEach-Object {
+    if ($gplDenylist -contains $_.Name.ToLowerInvariant()) {
+        Write-Warning "skipping GPL-licensed DLL: $($_.Name) — check vcpkg.json features to eliminate it upstream"
+        return
+    }
     Copy-Item $_.FullName (Join-Path $nativeDir $_.Name) -Force
     Write-Host "    $($_.Name)"
 }
