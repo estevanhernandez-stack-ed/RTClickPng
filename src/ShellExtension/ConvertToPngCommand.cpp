@@ -55,10 +55,6 @@ namespace {
         if (paths.empty()) return;
 
         auto settings = SettingsReader::Read();
-        const auto* policy = settings.confirmBeforeOverwrite ? L"confirm" : L"force";
-        // When the shell extension eventually owns the confirm UI (future item),
-        // it re-invokes with policy=force after a yes.  For now "confirm" at the engine
-        // level just exits 4 on existing target; downstream toast explains.
 
         auto engineExe = EngineLauncher::ResolveEngineExePath();
         if (engineExe.empty())
@@ -67,21 +63,62 @@ namespace {
             return;
         }
 
+        // Per-batch remembered answer so a multi-select "Yes to All" mental model works:
+        //   confirm policy:
+        //     first overwrite-denied exit -> MessageBox Yes/No/YesToAll/NoToAll
+        //     remember the all-variants for the rest of the batch
+        bool alwaysOverwrite = !settings.confirmBeforeOverwrite;  // force=yes baseline when setting says so
+        bool alwaysSkip = false;
+
         size_t succeeded = 0, failed = 0;
         std::wstring lastSuccessPath;
         std::wstring firstError;
         for (const auto& src : paths)
         {
             auto dst = SwapExtension(src, targetExt);
-            std::wstring args;
-            args.append(L"convert ");
-            args.append(Quote(src));
-            args.push_back(L' ');
-            args.append(Quote(dst));
-            args.append(L" --overwrite-policy=");
-            args.append(policy);
 
-            auto r = EngineLauncher::Run(engineExe, args);
+            auto runOnce = [&](const wchar_t* policy) {
+                std::wstring args;
+                args.append(L"convert ");
+                args.append(Quote(src));
+                args.push_back(L' ');
+                args.append(Quote(dst));
+                args.append(L" --overwrite-policy=");
+                args.append(policy);
+                return EngineLauncher::Run(engineExe, args);
+            };
+
+            const wchar_t* policy = alwaysOverwrite ? L"force" : alwaysSkip ? L"skip" : L"confirm";
+            auto r = runOnce(policy);
+
+            // Overwrite-denied (exit 4) means the destination existed and policy was confirm/skip.
+            // Show a prompt for confirm, then either retry with force or skip.
+            if (r.exitCode == 4 && !alwaysOverwrite && !alwaysSkip)
+            {
+                auto prompt = std::filesystem::path(dst).filename().wstring()
+                            + L" already exists.\n\nOverwrite?";
+                auto buttons = paths.size() > 1 ? (MB_YESNOCANCEL | MB_ICONQUESTION | MB_SETFOREGROUND | MB_TOPMOST)
+                                                : (MB_YESNO       | MB_ICONQUESTION | MB_SETFOREGROUND | MB_TOPMOST);
+                auto answer = MessageBoxW(nullptr, prompt.c_str(), L"Right Click PNG", buttons);
+                // For multi-select we treat Cancel as NoToAll so the user can bail out of a batch.
+                if (answer == IDYES)
+                {
+                    r = runOnce(L"force");
+                }
+                else if (answer == IDNO)
+                {
+                    r.exitCode = 0;  // user chose to skip this one — not an error
+                    --failed;        // cancel out the increment below
+                    // ... but we never incremented; just continue
+                    continue;
+                }
+                else // IDCANCEL for multi-select
+                {
+                    alwaysSkip = true;
+                    continue;
+                }
+            }
+
             if (r.exitCode == 0)
             {
                 ++succeeded;

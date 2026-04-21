@@ -46,8 +46,10 @@ namespace {
             XmlDocument doc;
             doc.LoadXml(hstring{toastXml});
             ToastNotification toast{doc};
-            // Package family name matches src/Shared/Paths.cs; changing the PFN requires both sides.
-            ToastNotificationManager::CreateToastNotifier(L"RTClickPng_626labs0000!App").Show(toast);
+            // No-arg CreateToastNotifier() picks up the current package's AUMID automatically
+            // when running in a packaged context (our DLL is hosted by dllhost under the MSIX
+            // package identity via the SurrogateServer registration).
+            ToastNotificationManager::CreateToastNotifier().Show(toast);
         }
         catch (...) { /* swallow — toast is cosmetic */ }
     }
