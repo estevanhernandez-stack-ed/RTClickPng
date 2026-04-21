@@ -53,13 +53,13 @@
           <com:ComServer>
             <com:SurrogateServer DisplayName="Right Click PNG Shell Extension">
               <com:Class Id="68730B57-152E-4BC9-A158-3A03EE03465A"
-                         Path="ShellExtension.dll" ThreadingModel="STA" />
+                         Path="ShellExtension\ShellExtension.dll" ThreadingModel="STA" />
               <com:Class Id="D1407350-4611-4621-802E-475C82006858"
-                         Path="ShellExtension.dll" ThreadingModel="STA" />
+                         Path="ShellExtension\ShellExtension.dll" ThreadingModel="STA" />
               <com:Class Id="DC177957-7F24-486D-B4CB-D69FA4580C8F"
-                         Path="ShellExtension.dll" ThreadingModel="STA" />
+                         Path="ShellExtension\ShellExtension.dll" ThreadingModel="STA" />
               <com:Class Id="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07"
-                         Path="ShellExtension.dll" ThreadingModel="STA" />
+                         Path="ShellExtension\ShellExtension.dll" ThreadingModel="STA" />
             </com:SurrogateServer>
           </com:ComServer>
         </com:Extension>
