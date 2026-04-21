@@ -14,7 +14,8 @@
       - No msvcr*.dll (legacy CRT) or msvcp1*0.dll (C++ stdlib in mixed form)
 
 .NOTES
-    Must run from a Visual Studio Developer PowerShell (so dumpbin is on PATH).
+    If dumpbin isn't on PATH, auto-enters the VS 2022 Developer PowerShell via
+    vswhere.exe + Microsoft.VisualStudio.DevShell — no manual Dev PS launch needed.
 #>
 [CmdletBinding()]
 param()
@@ -23,8 +24,26 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $nativeDir = Join-Path $repoRoot 'build/native'
 
+# Auto-enter VS Developer Shell if dumpbin isn't already on PATH.
 if (-not (Get-Command dumpbin -ErrorAction SilentlyContinue)) {
-    throw "dumpbin.exe not on PATH. Launch a 'Developer PowerShell for VS 2022' and re-run."
+    $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
+    if (-not (Test-Path $vswhere)) {
+        throw "dumpbin not on PATH and vswhere.exe not found. Install VS 2022 Build Tools or launch a Developer PowerShell manually."
+    }
+    $vsInstallDir = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
+    if (-not $vsInstallDir) {
+        throw "vswhere could not locate a VS 2022 installation with MSBuild component."
+    }
+    $devShellDll = Join-Path $vsInstallDir 'Common7\Tools\Microsoft.VisualStudio.DevShell.dll'
+    if (-not (Test-Path $devShellDll)) {
+        throw "Microsoft.VisualStudio.DevShell.dll missing at $devShellDll — VS 2022 install may be incomplete."
+    }
+    Import-Module $devShellDll
+    Enter-VsDevShell -VsInstallPath $vsInstallDir -SkipAutomaticLocation -DevCmdArguments "-arch=x64 -host_arch=x64" | Out-Null
+}
+
+if (-not (Get-Command dumpbin -ErrorAction SilentlyContinue)) {
+    throw "dumpbin still not on PATH after Enter-VsDevShell — something went wrong."
 }
 if (-not (Test-Path $nativeDir)) {
     throw "build/native/ missing. Run build/fetch-native.ps1 first."
@@ -41,20 +60,18 @@ foreach ($dll in $dlls) {
     $out = & dumpbin /dependents $dll.FullName 2>&1
     $imports = $out | Where-Object { $_ -match '\.dll\s*$' } | ForEach-Object { $_.Trim().ToLowerInvariant() }
 
-    $hasUcrt = $imports -contains 'ucrtbase.dll' -or $imports -contains 'api-ms-win-crt-runtime-l1-1-0.dll'
-    $hasVcr = $imports -contains 'vcruntime140.dll' -or $imports -contains 'vcruntime140_1.dll'
-    $hasLegacy = @($imports | Where-Object { $_ -match '^msvcr\d' }).Count -gt 0
-
-    $status = if ($hasUcrt -and -not $hasLegacy) { 'ok' } else { 'FAIL' }
+    $hasUcrt = ($imports -contains 'ucrtbase.dll') -or ($imports | Where-Object { $_ -like 'api-ms-win-crt-*.dll' })
+    $hasVcr  = ($imports -contains 'vcruntime140.dll') -or ($imports -contains 'vcruntime140_1.dll')
+    $legacy  = @($imports | Where-Object { $_ -match '^msvcr\d' })
+    $status  = if (($hasUcrt) -and ($legacy.Count -eq 0)) { 'ok' } else { 'FAIL' }
     if ($status -eq 'FAIL') { $allOk = $false }
 
     $report += [pscustomobject]@{
-        Dll        = $dll.Name
-        UCRT       = $hasUcrt
-        VCRuntime  = $hasVcr
-        LegacyCRT  = $hasLegacy
-        Status     = $status
-        ImportList = ($imports -join ', ')
+        Dll       = $dll.Name
+        UCRT      = [bool]$hasUcrt
+        VCRuntime = [bool]$hasVcr
+        LegacyCRT = if ($legacy.Count -gt 0) { ($legacy -join ',') } else { '-' }
+        Status    = $status
     }
 }
 
