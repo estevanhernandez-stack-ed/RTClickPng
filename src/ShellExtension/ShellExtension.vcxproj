@@ -89,6 +89,8 @@
     <ClInclude Include="ConvertToPngCommand.h" />
     <ClInclude Include="FileFilter.h" />
     <ClInclude Include="SettingsReader.h" />
+    <ClInclude Include="EngineLauncher.h" />
+    <ClInclude Include="Notifier.h" />
   </ItemGroup>
 
   <ItemGroup>
@@ -100,6 +102,8 @@
     <ClCompile Include="ConvertToPngCommand.cpp" />
     <ClCompile Include="FileFilter.cpp" />
     <ClCompile Include="SettingsReader.cpp" />
+    <ClCompile Include="EngineLauncher.cpp" />
+    <ClCompile Include="Notifier.cpp" />
   </ItemGroup>
 
   <ItemGroup>

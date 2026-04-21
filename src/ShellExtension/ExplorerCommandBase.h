@@ -58,11 +58,9 @@ public:
         return m_site.CopyTo(riid, site);
     }
 
-protected:
-    ComPtr<IUnknown> m_site;
-
     /// <summary>
     /// Extract file system paths from an IShellItemArray selection.
+    /// Public so helper free functions in ConvertToPngCommand.cpp can call it without friending each.
     /// </summary>
     static std::vector<std::wstring> GetSelectionPaths(IShellItemArray* items) noexcept
     {
@@ -84,6 +82,9 @@ protected:
         }
         return out;
     }
+
+protected:
+    ComPtr<IUnknown> m_site;
 };
 
 } // namespace rtclick

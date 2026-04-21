@@ -2,6 +2,8 @@
 #include "ConvertToPngCommand.h"
 #include "FileFilter.h"
 #include "SettingsReader.h"
+#include "EngineLauncher.h"
+#include "Notifier.h"
 
 namespace rtclick {
 
@@ -9,6 +11,103 @@ namespace {
     EXPCMDSTATE StateFromBool(bool visible) noexcept
     {
         return visible ? ECS_ENABLED : ECS_HIDDEN;
+    }
+
+    /// <summary>
+    /// Compose destination path by replacing the source's extension with the new one.
+    /// <paramref name="newExt"/> must include the leading dot.
+    /// </summary>
+    std::wstring SwapExtension(const std::wstring& source, const wchar_t* newExt) noexcept
+    {
+        std::filesystem::path p{source};
+        p.replace_extension(newExt);
+        return p.wstring();
+    }
+
+    /// <summary>
+    /// Quote an argument for a Windows command line — wraps in "..." and escapes embedded quotes.
+    /// Backslash handling per CommandLineToArgvW conventions.
+    /// </summary>
+    std::wstring Quote(const std::wstring& arg) noexcept
+    {
+        std::wstring out;
+        out.push_back(L'"');
+        size_t backslashes = 0;
+        for (auto c : arg)
+        {
+            if (c == L'\\') { ++backslashes; out.push_back(c); continue; }
+            if (c == L'"') { out.append(backslashes + 1, L'\\'); }
+            backslashes = 0;
+            out.push_back(c);
+        }
+        out.append(backslashes, L'\\');
+        out.push_back(L'"');
+        return out;
+    }
+
+    /// <summary>
+    /// Run convert for every selected source, emitting the appropriate toast(s).
+    /// <paramref name="targetExt"/> must include the leading dot: L".png" or L".jpg".
+    /// </summary>
+    void RunConvertBatch(IShellItemArray* items, const wchar_t* targetExt) noexcept
+    {
+        auto paths = ExplorerCommandBase<ConvertToPngCommand>::GetSelectionPaths(items);
+        if (paths.empty()) return;
+
+        auto settings = SettingsReader::Read();
+        const auto* policy = settings.confirmBeforeOverwrite ? L"confirm" : L"force";
+        // When the shell extension eventually owns the confirm UI (future item),
+        // it re-invokes with policy=force after a yes.  For now "confirm" at the engine
+        // level just exits 4 on existing target; downstream toast explains.
+
+        auto engineExe = EngineLauncher::ResolveEngineExePath();
+        if (engineExe.empty())
+        {
+            Notifier::ConvertError(paths[0], L"Engine executable not found in package.");
+            return;
+        }
+
+        size_t succeeded = 0, failed = 0;
+        std::wstring lastSuccessPath;
+        std::wstring firstError;
+        for (const auto& src : paths)
+        {
+            auto dst = SwapExtension(src, targetExt);
+            std::wstring args;
+            args.append(L"convert ");
+            args.append(Quote(src));
+            args.push_back(L' ');
+            args.append(Quote(dst));
+            args.append(L" --overwrite-policy=");
+            args.append(policy);
+
+            auto r = EngineLauncher::Run(engineExe, args);
+            if (r.exitCode == 0)
+            {
+                ++succeeded;
+                lastSuccessPath = dst;
+            }
+            else
+            {
+                ++failed;
+                if (firstError.empty())
+                {
+                    firstError = r.stderrMessage.empty()
+                        ? (L"engine exit " + std::to_wstring(r.exitCode))
+                        : r.stderrMessage;
+                }
+            }
+        }
+
+        if (paths.size() == 1)
+        {
+            if (succeeded == 1) Notifier::ConvertSuccess(lastSuccessPath);
+            else                Notifier::ConvertError(paths[0], firstError);
+        }
+        else
+        {
+            Notifier::ConvertBatchSummary(succeeded, failed);
+        }
     }
 }
 
@@ -26,9 +125,9 @@ IFACEMETHODIMP ConvertToPngCommand::GetState(IShellItemArray* items, BOOL, EXPCM
     return S_OK;
 }
 
-IFACEMETHODIMP ConvertToPngCommand::Invoke(IShellItemArray*, IBindCtx*) noexcept
+IFACEMETHODIMP ConvertToPngCommand::Invoke(IShellItemArray* items, IBindCtx*) noexcept
 {
-    // Item 7 wires EngineLauncher + Notifier here.
+    RunConvertBatch(items, L".png");
     return S_OK;
 }
 
@@ -67,8 +166,9 @@ IFACEMETHODIMP ConvertToJpegCommand::GetState(IShellItemArray* items, BOOL, EXPC
     return S_OK;
 }
 
-IFACEMETHODIMP ConvertToJpegCommand::Invoke(IShellItemArray*, IBindCtx*) noexcept
+IFACEMETHODIMP ConvertToJpegCommand::Invoke(IShellItemArray* items, IBindCtx*) noexcept
 {
+    RunConvertBatch(items, L".jpg");
     return S_OK;
 }
 
@@ -89,6 +189,7 @@ IFACEMETHODIMP CopyAsJpegCommand::GetState(IShellItemArray* items, BOOL, EXPCMDS
 
 IFACEMETHODIMP CopyAsJpegCommand::Invoke(IShellItemArray*, IBindCtx*) noexcept
 {
+    // Item 8 wires ClipboardWriter here.
     return S_OK;
 }
 
