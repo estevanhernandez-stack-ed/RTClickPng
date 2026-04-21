@@ -13,8 +13,8 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <AppxPackageSigningEnabled Condition="'$(AppxPackageSigningEnabled)'==''">true</AppxPackageSigningEnabled>
     <AppxAutoIncrementPackageRevision>false</AppxAutoIncrementPackageRevision>
-    <AppxPackageTestCertificate Condition="'$(AppxPackageSigningEnabled)'=='true' and '$(PackageCertificateKeyFile)'==''">RTClickPng_TemporaryKey.pfx</AppxPackageTestCertificate>
-    <PackageCertificateThumbprint></PackageCertificateThumbprint>
+    <PackageCertificateKeyFile Condition="'$(PackageCertificateKeyFile)'==''">RTClickPng_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificatePassword Condition="'$(PackageCertificatePassword)'==''">RTClickPng-Dev</PackageCertificatePassword>
     <EntryPointProjectUniqueName>..\Engine\Engine.csproj</EntryPointProjectUniqueName>
     <GenerateAppInstallerFile>false</GenerateAppInstallerFile>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>

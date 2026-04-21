@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0-windows10.0.22621.0</TargetFramework>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <RootNamespace>RTClickPng.Shared</RootNamespace>
     <AssemblyName>RTClickPng.Shared</AssemblyName>
     <IsAotCompatible>true</IsAotCompatible>
