@@ -1,0 +1,50 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+TestResults/
+.vs/
+packages/
+*.nuget.props
+*.nuget.targets
+
+# Windows / WinAppSDK
+AppPackages/
+BundleArtifacts/
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+*.msixupload
+Generated Files/
+
+# Signing
+*.pfx
+*.snk
+*.cer
+*.p7s
+
+# Native build artifacts
+build/vcpkg/
+build/native/*.dll
+build/native/*.pdb
+build/native/*.lib
+build/fetch-native.log
+vcpkg_installed/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Tools / misc
+.qodo/
+node_modules/
