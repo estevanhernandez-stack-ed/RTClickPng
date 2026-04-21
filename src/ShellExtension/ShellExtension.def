@@ -1,4 +1,6 @@
-LIBRARY "RTClickPng.ShellExtension"
+; Note: LIBRARY directive intentionally omitted — the linker uses the final /OUT: name
+; (ShellExtension.dll) regardless.  Listing LIBRARY here caused LNK4070 warnings when
+; TargetName was changed without updating both spots.
 
 EXPORTS
     DllGetClassObject       PRIVATE

@@ -6,8 +6,7 @@ using namespace rtclick;
 std::atomic<long> g_dllRefCount = 0;
 HMODULE g_hModule = nullptr;
 
-// Classic COM class factory — one per IExplorerCommand CLSID.  We switch on the requested
-// CLSID in DllGetClassObject and produce the matching factory on demand.
+// Classic COM class factory — one template instantiation per IExplorerCommand CLSID.
 template <typename TCommand>
 class CommandClassFactory :
     public RuntimeClass<RuntimeClassFlags<ClassicCom>, IClassFactory>
@@ -46,9 +45,23 @@ extern "C" HRESULT WINAPI DllGetClassObject(REFCLSID clsid, REFIID riid, LPVOID*
 
     if (IsEqualCLSID(clsid, CLSID_ConvertToPngCommand))
     {
-        auto factory = Microsoft::WRL::Make<CommandClassFactory<ConvertToPngCommand>>();
-        if (!factory) return E_OUTOFMEMORY;
-        return factory->QueryInterface(riid, ppv);
+        auto f = Microsoft::WRL::Make<CommandClassFactory<ConvertToPngCommand>>();
+        return f ? f->QueryInterface(riid, ppv) : E_OUTOFMEMORY;
+    }
+    if (IsEqualCLSID(clsid, CLSID_CopyAsPngCommand))
+    {
+        auto f = Microsoft::WRL::Make<CommandClassFactory<CopyAsPngCommand>>();
+        return f ? f->QueryInterface(riid, ppv) : E_OUTOFMEMORY;
+    }
+    if (IsEqualCLSID(clsid, CLSID_ConvertToJpegCommand))
+    {
+        auto f = Microsoft::WRL::Make<CommandClassFactory<ConvertToJpegCommand>>();
+        return f ? f->QueryInterface(riid, ppv) : E_OUTOFMEMORY;
+    }
+    if (IsEqualCLSID(clsid, CLSID_CopyAsJpegCommand))
+    {
+        auto f = Microsoft::WRL::Make<CommandClassFactory<CopyAsJpegCommand>>();
+        return f ? f->QueryInterface(riid, ppv) : E_OUTOFMEMORY;
     }
     return CLASS_E_CLASSNOTAVAILABLE;
 }

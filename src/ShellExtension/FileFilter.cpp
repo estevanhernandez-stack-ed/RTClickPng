@@ -38,11 +38,48 @@ bool FileFilter::IsPngExtension(std::wstring_view path) noexcept
     return ext == L".png";
 }
 
+bool FileFilter::IsJpegExtension(std::wstring_view path) noexcept
+{
+    auto ext = ExtractExtensionLower(path);
+    return ext == L".jpg" || ext == L".jpeg";
+}
+
 bool FileFilter::AllSupported(const std::vector<std::wstring>& paths) noexcept
 {
     if (paths.empty()) return false;
     for (const auto& p : paths) { if (!IsSupportedExtension(p)) return false; }
     return true;
+}
+
+bool FileFilter::ShouldShowConvertToPng(const std::vector<std::wstring>& paths) noexcept
+{
+    if (!AllSupported(paths)) return false;
+    // Hide when every selected item is already .png — no useful conversion to run.
+    bool allPng = true;
+    for (const auto& p : paths) { if (!IsPngExtension(p)) { allPng = false; break; } }
+    return !allPng;
+}
+
+bool FileFilter::ShouldShowCopyAsPng(const std::vector<std::wstring>& paths) noexcept
+{
+    if (paths.size() != 1) return false;
+    return IsSupportedExtension(paths[0]);
+}
+
+bool FileFilter::ShouldShowConvertToJpeg(const std::vector<std::wstring>& paths, bool jpegVariantsEnabled) noexcept
+{
+    if (!jpegVariantsEnabled) return false;
+    if (!AllSupported(paths)) return false;
+    bool allJpeg = true;
+    for (const auto& p : paths) { if (!IsJpegExtension(p)) { allJpeg = false; break; } }
+    return !allJpeg;
+}
+
+bool FileFilter::ShouldShowCopyAsJpeg(const std::vector<std::wstring>& paths, bool jpegVariantsEnabled) noexcept
+{
+    if (!jpegVariantsEnabled) return false;
+    if (paths.size() != 1) return false;
+    return IsSupportedExtension(paths[0]);
 }
 
 } // namespace rtclick
