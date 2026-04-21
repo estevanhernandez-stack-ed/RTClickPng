@@ -23,6 +23,34 @@ internal static partial class LibJpegTurbo
     [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.System32)]
     internal static partial IntPtr tjInitCompress();
 
+    [LibraryImport(Lib, EntryPoint = "tjInitDecompress")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.System32)]
+    internal static partial IntPtr tjInitDecompress();
+
+    [LibraryImport(Lib, EntryPoint = "tjDecompressHeader3")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.System32)]
+    internal static partial int tjDecompressHeader3(
+        IntPtr handle,
+        IntPtr jpegBuf,
+        nuint jpegSize,
+        out int width,
+        out int height,
+        out int jpegSubsamp,
+        out int jpegColorspace);
+
+    [LibraryImport(Lib, EntryPoint = "tjDecompress2")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.System32)]
+    internal static partial int tjDecompress2(
+        IntPtr handle,
+        IntPtr jpegBuf,
+        nuint jpegSize,
+        IntPtr dstBuf,
+        int width,
+        int pitch,
+        int height,
+        int pixelFormat,
+        int flags);
+
     [LibraryImport(Lib, EntryPoint = "tjDestroy")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.System32)]
     internal static partial int tjDestroy(IntPtr handle);

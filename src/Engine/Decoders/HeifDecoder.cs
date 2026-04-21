@@ -25,6 +25,23 @@ internal sealed class HeifDecoder : IImageDecoder
                     err = LibHeif.heif_context_get_primary_image_handle(ctx, out var handle);
                     ThrowOnError(err, "heif_context_get_primary_image_handle");
 
+                    // Extract ICC profile from the container before decoding pixels.
+                    byte[]? icc = null;
+                    var profileType = LibHeif.heif_image_handle_get_color_profile_type(handle);
+                    if (profileType == LibHeif.HEIF_COLOR_PROFILE_TYPE_RICC || profileType == LibHeif.HEIF_COLOR_PROFILE_TYPE_PROF)
+                    {
+                        var iccSize = LibHeif.heif_image_handle_get_raw_color_profile_size(handle);
+                        if (iccSize > 0 && iccSize <= int.MaxValue)
+                        {
+                            icc = new byte[(int)iccSize];
+                            fixed (byte* iccBuf = icc)
+                            {
+                                var iccErr = LibHeif.heif_image_handle_get_raw_color_profile(handle, (IntPtr)iccBuf);
+                                if (iccErr.code != 0) icc = null;
+                            }
+                        }
+                    }
+
                     try
                     {
                         err = LibHeif.heif_decode_image(
@@ -47,7 +64,11 @@ internal sealed class HeifDecoder : IImageDecoder
                                 Marshal.Copy(plane + y * stride, pixels, dstRow, width * 4);
                                 dstRow += width * 4;
                             }
-                            return new DecodedImage { Width = width, Height = height, Pixels = pixels };
+                            return new DecodedImage
+                            {
+                                Width = width, Height = height, Pixels = pixels,
+                                IccProfile = icc,
+                            };
                         }
                         finally
                         {

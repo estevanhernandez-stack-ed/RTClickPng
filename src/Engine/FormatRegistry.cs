@@ -18,7 +18,7 @@ internal static class FormatRegistry
             "webp" => new WebpDecoder(),
             "avif" => new AvifDecoder(),
             "heic" or "heif" => new HeifDecoder(),
-            "jpg" or "jpeg" => new JpegInputDecoder(),   // implemented in item 4 when we add EXIF — stub below keeps the switch total
+            "jpg" or "jpeg" => new JpegDecoder(),
             "png"  => new PngDecoder(),
             "bmp"  => new BmpDecoder(),
             "tif" or "tiff" => new TiffDecoder(),
@@ -26,14 +26,4 @@ internal static class FormatRegistry
             _ => throw new DecoderException($"unsupported source extension '{extension}'"),
         };
     }
-}
-
-/// <summary>
-/// Placeholder JPEG decoder that composes libjpeg-turbo's decompress path.  Full implementation
-/// lands in item 4 alongside the EXIF orientation work; for item 3 we keep it build-clean.
-/// </summary>
-internal sealed class JpegInputDecoder : IImageDecoder
-{
-    public DecodedImage Decode(ReadOnlySpan<byte> sourceBytes)
-        => throw new DecoderException("jpeg source decoding lands in checklist item 4 (ExifHandler pairs with this)");
 }

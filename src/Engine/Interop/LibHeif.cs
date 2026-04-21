@@ -20,6 +20,12 @@ internal static partial class LibHeif
     // heif_channel
     internal const int HEIF_CHANNEL_INTERLEAVED = 10;
 
+    // heif_color_profile_type — values from heif_color.h
+    internal const int HEIF_COLOR_PROFILE_TYPE_NOT_PRESENT = 0;
+    internal const int HEIF_COLOR_PROFILE_TYPE_NCLX        = 0x6e636c78; // 'nclx' (big-endian)
+    internal const int HEIF_COLOR_PROFILE_TYPE_RICC        = 0x72494343; // 'rICC'
+    internal const int HEIF_COLOR_PROFILE_TYPE_PROF        = 0x70726f66; // 'prof'
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct heif_error
     {
@@ -69,4 +75,16 @@ internal static partial class LibHeif
     [LibraryImport(Lib, EntryPoint = "heif_image_release")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.System32)]
     internal static partial void heif_image_release(IntPtr img);
+
+    [LibraryImport(Lib, EntryPoint = "heif_image_handle_get_color_profile_type")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.System32)]
+    internal static partial int heif_image_handle_get_color_profile_type(IntPtr handle);
+
+    [LibraryImport(Lib, EntryPoint = "heif_image_handle_get_raw_color_profile_size")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.System32)]
+    internal static partial nuint heif_image_handle_get_raw_color_profile_size(IntPtr handle);
+
+    [LibraryImport(Lib, EntryPoint = "heif_image_handle_get_raw_color_profile")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.System32)]
+    internal static partial heif_error heif_image_handle_get_raw_color_profile(IntPtr handle, IntPtr outData);
 }

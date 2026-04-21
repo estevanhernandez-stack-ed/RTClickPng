@@ -1,12 +1,12 @@
 using RTClickPng.Engine.Decoders;
 using RTClickPng.Engine.Encoders;
+using RTClickPng.Engine.Metadata;
 
 namespace RTClickPng.Engine;
 
 /// <summary>
 /// Handles the <c>convert &lt;src&gt; &lt;dst&gt; [--overwrite-policy=...]</c> verb.
-/// End-to-end: read source bytes → decode → encode → write to destination file.
-/// ICC/EXIF/overwrite semantics arrive in item 4.
+/// Flow: resolve policy → validate source → read → decode → apply EXIF orientation → encode → write.
 /// </summary>
 internal static class ConvertCommand
 {
@@ -48,11 +48,19 @@ internal static class ConvertCommand
             return (int)ExitCode.SourceNotFound;
         }
 
-        // Overwrite enforcement — item 4 plumbs confirm semantics to the shell extension.
-        if (File.Exists(destination) && policy == OverwritePolicy.Skip)
+        // Overwrite enforcement.  Engine is non-interactive: the Shell Extension owns the prompt
+        // and signals the decision by passing --overwrite-policy=force or =skip on retry.
+        if (File.Exists(destination))
         {
-            Console.Error.WriteLine($"convert: destination exists, policy=skip: {destination}");
-            return (int)ExitCode.OverwriteDenied;
+            switch (policy)
+            {
+                case OverwritePolicy.Confirm:
+                case OverwritePolicy.Skip:
+                    Console.Error.WriteLine($"convert: destination exists (policy={policy.ToString().ToLowerInvariant()}): {destination}");
+                    return (int)ExitCode.OverwriteDenied;
+                case OverwritePolicy.Force:
+                    break;
+            }
         }
 
         try
@@ -70,6 +78,35 @@ internal static class ConvertCommand
             }
 
             var image = decoder.Decode(srcBytes);
+
+            // Apply EXIF orientation to the raw pixels; discard everything else in EXIF
+            // (privacy-sensitive — GPS, serial numbers, timestamps — doesn't belong in the output).
+            if (image.Exif is { Length: > 0 })
+            {
+                var orientation = ExifHandler.ReadOrientation(image.Exif);
+                if (orientation != ExifHandler.Orientation.Normal)
+                {
+                    var (rotated, newW, newH) = ExifHandler.ApplyOrientation(image.Pixels, image.Width, image.Height, orientation);
+                    image = new DecodedImage
+                    {
+                        Width = newW,
+                        Height = newH,
+                        Pixels = rotated,
+                        IccProfile = image.IccProfile,
+                        Exif = null,  // stripped
+                    };
+                }
+                else
+                {
+                    // Orientation is already normal — just strip the EXIF payload for privacy.
+                    image = new DecodedImage
+                    {
+                        Width = image.Width, Height = image.Height, Pixels = image.Pixels,
+                        IccProfile = image.IccProfile, Exif = null,
+                    };
+                }
+            }
+
             IImageEncoder encoder = dstExt.ToLowerInvariant() switch
             {
                 ".png" => new PngEncoder(),

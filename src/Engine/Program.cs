@@ -1,9 +1,25 @@
+using System.Runtime.InteropServices;
+
 namespace RTClickPng.Engine;
 
-internal static class Program
+internal static partial class Program
 {
+    // UCRT's getenv reads from the CRT environment block, which on Windows is not automatically
+    // synced with Environment.SetEnvironmentVariable.  _putenv_s writes to the CRT block directly.
+    [LibraryImport("ucrtbase", EntryPoint = "_putenv_s", StringMarshalling = StringMarshalling.Utf8)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static partial int _putenv_s(string name, string value);
+
     public static int Main(string[] args)
     {
+        // Suppress libheif's startup plugin-scan noise (LoadLibraryA error: 193).  Unset,
+        // libheif falls back to a compile-time plugin dir that contains architecture-mismatched DLLs.
+        // Point it at a guaranteed-empty non-existent directory; FindFirstFile returns empty -> no
+        // load attempts.  Write via both Win32 and CRT env blocks because libheif uses getenv().
+        var emptyPluginDir = Path.Combine(Path.GetTempPath(), "rtclickpng-noplugins");
+        Environment.SetEnvironmentVariable("LIBHEIF_PLUGIN_PATH", emptyPluginDir);
+        _putenv_s("LIBHEIF_PLUGIN_PATH", emptyPluginDir);
+
         try
         {
             if (args.Length == 0)
