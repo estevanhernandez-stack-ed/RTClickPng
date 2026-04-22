@@ -66,6 +66,7 @@ jobs:
         run: |
           dotnet restore src/Shared/Shared.csproj -r win-x64
           dotnet restore src/Engine/Engine.csproj -r win-x64
+          dotnet restore src/Settings/Settings.csproj -r win-x64
           dotnet restore tests/Engine.Tests/Engine.Tests.csproj -r win-x64
 
       - name: Run xUnit tests (Engine)
