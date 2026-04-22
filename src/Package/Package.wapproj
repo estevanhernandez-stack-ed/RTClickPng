@@ -46,6 +46,10 @@
       <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
       <PublishProfile>Properties\PublishProfiles\win-x64.pubxml</PublishProfile>
     </ProjectReference>
+    <ProjectReference Include="..\Settings\Settings.csproj">
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+      <PublishProfile>Properties\PublishProfiles\win-x64.pubxml</PublishProfile>
+    </ProjectReference>
     <ProjectReference Include="..\ShellExtension\ShellExtension.vcxproj" />
   </ItemGroup>
 

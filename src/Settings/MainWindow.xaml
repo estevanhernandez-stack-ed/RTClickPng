@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="RTClickPng.Settings.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RTClickPng.Settings"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Right Click PNG"
+    mc:Ignorable="d">
+
+    <Grid Background="#0F1F31" Padding="28" RowDefinitions="Auto,Auto,Auto,*,Auto,Auto">
+        <Grid.Resources>
+            <LinearGradientBrush x:Key="BrandGradientBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#17D4FA" Offset="0.0" />
+                <GradientStop Color="#F22F89" Offset="1.0" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="HairlineBrush" Color="#17D4FA" Opacity="0.35" />
+        </Grid.Resources>
+
+        <!-- Title: gradient text, Space Grotesk–adjacent via Segoe UI Variable Display -->
+        <TextBlock Grid.Row="0"
+                   Text="Right Click PNG"
+                   FontFamily="Segoe UI Variable Display"
+                   FontSize="28"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource BrandGradientBrush}"
+                   Margin="0,0,0,2" />
+
+        <TextBlock Grid.Row="1"
+                   Text="Convert and copy images from the right-click menu."
+                   FontFamily="Segoe UI Variable Text"
+                   FontSize="13"
+                   Foreground="#8E9BAD"
+                   Margin="0,0,0,20" />
+
+        <!-- Hairline divider: cyan → magenta gradient -->
+        <Rectangle Grid.Row="2" Height="1" Fill="{StaticResource BrandGradientBrush}" Opacity="0.6" Margin="0,0,0,22" />
+
+        <!-- Settings rows -->
+        <StackPanel Grid.Row="3" Spacing="18">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <TextBlock Text="Show JPEG variants"
+                               FontFamily="Segoe UI Variable Text"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#E6EBF3" />
+                    <TextBlock Text="Add Convert to JPEG and Copy as JPEG to the right-click menu."
+                               FontFamily="Segoe UI Variable Text"
+                               FontSize="12"
+                               Foreground="#8E9BAD"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1"
+                              x:Name="ShowJpegVariantsToggle"
+                              OnContent="" OffContent=""
+                              Toggled="OnShowJpegVariantsToggled"
+                              VerticalAlignment="Center"
+                              MinWidth="0" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="3">
+                    <TextBlock Text="Confirm before overwriting"
+                               FontFamily="Segoe UI Variable Text"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="#E6EBF3" />
+                    <TextBlock Text="Prompt before replacing an existing file with the same name."
+                               FontFamily="Segoe UI Variable Text"
+                               FontSize="12"
+                               Foreground="#8E9BAD"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1"
+                              x:Name="ConfirmOverwriteToggle"
+                              OnContent="" OffContent=""
+                              Toggled="OnConfirmOverwriteToggled"
+                              VerticalAlignment="Center"
+                              MinWidth="0" />
+            </Grid>
+        </StackPanel>
+
+        <!-- Uppercase micro label — "circuit trace" accent per the brand -->
+        <TextBlock Grid.Row="4"
+                   Text="SETTINGS FILE"
+                   FontFamily="Cascadia Mono"
+                   FontSize="10"
+                   Foreground="#5E6B7F"
+                   CharacterSpacing="100"
+                   FontWeight="SemiBold"
+                   Margin="0,24,0,4" />
+
+        <TextBlock Grid.Row="5"
+                   x:Name="StatusText"
+                   FontFamily="Cascadia Mono"
+                   FontSize="11"
+                   Foreground="#8E9BAD"
+                   TextTrimming="CharacterEllipsis"
+                   TextWrapping="NoWrap" />
+    </Grid>
+</Window>
