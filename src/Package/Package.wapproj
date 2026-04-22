@@ -47,10 +47,9 @@
       <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
       <PublishProfile>Properties\PublishProfiles\win-x64.pubxml</PublishProfile>
     </ProjectReference>
-    <ProjectReference Include="..\Settings\Settings.csproj">
-      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-      <PublishProfile>Properties\PublishProfiles\win-x64.pubxml</PublishProfile>
-    </ProjectReference>
+    <!-- Settings.csproj (WPF) silently exits before managed code runs when activated in
+         our packaged context; Notepad-on-settings.json via the shell extension verb is the
+         ship-worthy workaround.  Kept in tree for v1.1 debugging. -->
     <ProjectReference Include="..\ShellExtension\ShellExtension.vcxproj" />
   </ItemGroup>
 
