@@ -33,7 +33,7 @@
 
   <Applications>
     <Application Id="App"
-                 Executable="Engine\RTClickPng.Engine.exe"
+                 Executable="Settings\RTClickPng.Settings.exe"
                  EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
         DisplayName="Right Click PNG"
