@@ -3,14 +3,15 @@
 All notable changes to Right Click PNG. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/).
 
-## [0.1.0.1] — 2026-04-22
+## [0.1.1.0] — 2026-04-22
 
 First public preview. Feature-complete for the v1 scope.
 
-The 4-part version reflects Microsoft Store submission mechanics rather than
-product change — 0.1.0.0 was consumed during submission-queue troubleshooting
-(DisplayName reservation mismatch, then version-uniqueness constraint on the
-corrected package). 0.1.0.1 is the first build that actually ships.
+The 4-part MSIX Identity.Version reflects Microsoft Store submission mechanics,
+not product change — 0.1.0.0 was consumed in the submission queue during
+DisplayName-reservation + uniqueness troubleshooting, and 0.1.0.1 failed the
+Store policy that requires a revision digit of 0 (`X.Y.Z.0`). 0.1.1.0 is the
+first build that actually ships.
 
 ### Added
 

@@ -12,7 +12,7 @@
   <Identity
     Name="626LabsLLC.RightClicktoPNG"
     Publisher="CN=177BCE59-0966-4975-9962-10E36652141F"
-    Version="0.1.0.1"
+    Version="0.1.1.0"
     ProcessorArchitecture="x64" />
 
   <Properties>
