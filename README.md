@@ -123,6 +123,46 @@ Toggles persist to a JSON file the shell extension reads on every right-click:
 Hand-editing the file works too — schema and default values documented in
 [`docs/SETTINGS.md`](docs/SETTINGS.md).
 
+## Troubleshooting
+
+### "I don't see any Right Click PNG verbs when I right-click an image."
+
+Check whether your machine is defaulting to the **legacy** Windows 11 context menu
+(the "Show more options" / classic one) instead of the modern short menu. MSIX-packaged
+shell extensions register via `IExplorerCommand` and surface cleanly in the modern
+menu; the legacy menu's bridge flattens grouped submenus inconsistently and sometimes
+only shows one of our verbs.
+
+To confirm and fix:
+
+```powershell
+$key = 'HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}'
+if (Test-Path $key) {
+    Remove-Item $key -Recurse -Force
+    Stop-Process -Name explorer -Force
+    'Classic-menu tweak removed; Explorer restarted. Right-click any image to confirm.'
+} else {
+    'No classic-menu tweak present — different issue, please open a bug.'
+}
+```
+
+That registry key is commonly planted by PowerToys' "Classic Context Menus" toggle,
+by Win10→Win11 migration tools, or by any "make Windows 11 look like Windows 10"
+tweak. Removing it restores the modern menu as default and the full Right Click PNG
+submenu appears.
+
+### "Convert to PNG doesn't show on a `.png` file."
+
+That's by design — converting a PNG to itself is a no-op. Copy as PNG does still
+appear on `.png` sources because the workflow (paste without opening the file) is
+still useful.
+
+### "I don't see Convert to JPEG / Copy as JPEG verbs."
+
+They're off by default. Open the Settings window (Start menu → Right Click PNG, or
+right-click any supported image → **Right Click PNG → settings…**) and toggle
+*Show JPEG variants* on. Takes effect on the next right-click, no reboot.
+
 ## Architecture brief
 
 Engine and shell extension are split across process boundaries on purpose:

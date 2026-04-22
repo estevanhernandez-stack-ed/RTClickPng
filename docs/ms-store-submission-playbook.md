@@ -353,6 +353,45 @@ manifest.** Use `Add-AppxPackage -Register <path-to-AppxManifest.xml>`
 against the loose build layout. `-Register` bypasses signature verification
 entirely — same iteration loop, no cert dance.
 
+### 8. "Classic context menus" tweak silently eats IExplorerCommand groupings
+
+**Where it surfaced.** After install from the Store on a second PC, the
+user saw only `Right Click PNG settings…` as a standalone legacy-menu
+entry; the full `Right Click PNG →` submenu with Convert/Copy verbs never
+appeared. Installation was healthy (`Get-AppxPackage` Status `Ok`, signed
+by Store), no events in the logs — the shell extension was registered and
+functional, Windows just wasn't surfacing it.
+
+**Root cause.** The reg key
+`HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}` (with
+empty default value) forces Windows 11 back to the classic/legacy
+context menu as the default on every right-click. Our
+`desktop4:FileExplorerContextMenus` verbs register as `IExplorerCommand`,
+which Win11 surfaces cleanly in the **modern** short menu but bridges
+inconsistently to the legacy menu — grouped submenus get flattened,
+sometimes only one verb of the group appears.
+
+Commonly planted by PowerToys' "Classic Context Menus" toggle, Win10→Win11
+migration tools, and "make Windows 11 look like Windows 10" utilities.
+
+**Diagnosis.**
+
+```powershell
+Test-Path 'HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}'
+```
+
+`True` means classic-menu-forced. Remove the key and restart Explorer:
+
+```powershell
+Remove-Item 'HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}' -Recurse -Force
+Stop-Process -Name explorer -Force
+```
+
+**Why this matters for the playbook.** Any future 626Labs app that relies
+on `IExplorerCommand` verb grouping will show the same symptom on machines
+with this tweak. Surface the fix in the app's README under Troubleshooting
+before the first support ticket arrives.
+
 ### Honorable mentions
 
 - **Partner Center's "short name" field** is cosmetic, not the DisplayName
