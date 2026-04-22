@@ -20,7 +20,7 @@ labels: bug
 ## Environment
 
 - Windows build: <!-- run `winver` and paste the version -->
-- Right Click PNG version: <!-- `Get-AppxPackage 626labs.RTClickPng | Select Version` -->
+- Right Click PNG version: <!-- `Get-AppxPackage 626LabsLLC.RightClicktoPNG | Select Version` -->
 - Source file format + size:
 
 ## Engine output (if reproducible on CLI)

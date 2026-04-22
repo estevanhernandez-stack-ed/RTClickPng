@@ -6,8 +6,8 @@ invocation; hand-editing the file works too and the UI picks up external changes
 
 ## File location
 
-```
-%LOCALAPPDATA%\Packages\626labs.RTClickPng_3fjztnatnmz7a\LocalState\settings.json
+```text
+%LOCALAPPDATA%\Packages\626LabsLLC.RightClicktoPNG_wz1chhb2h2v4a\LocalState\settings.json
 ```
 
 If the folder doesn't exist yet, the UI and the shell extension both create it on first use.
@@ -24,7 +24,7 @@ The shell extension uses safe defaults when the file is missing.
 ```
 
 | Field | Default | Effect |
-|---|---|---|
+| --- | --- | --- |
 | `showJpegVariants` | `false` | When `true`, adds *Convert to JPEG* and *Copy as JPEG* to the right-click menu. |
 | `confirmBeforeOverwrite` | `true` | When `true`, the extension prompts before replacing an existing file.  When `false`, overwrites silently. |
 

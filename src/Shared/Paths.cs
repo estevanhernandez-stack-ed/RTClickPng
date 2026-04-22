@@ -7,11 +7,12 @@ namespace RTClickPng.Shared;
 public static class Paths
 {
     /// <summary>
-    /// The MSIX package family name (PFN). Updated at packaging time via Directory.Build.props.
-    /// Format: <c>&lt;Name&gt;_&lt;PublisherId&gt;</c>. The publisher id is a 13-char hash derived from
-    /// the cert subject; for dev builds we use the self-signed cert's computed id.
+    /// The MSIX package family name (PFN), format <c>&lt;Identity.Name&gt;_&lt;PublisherId&gt;</c>.
+    /// The publisher id is a 13-char hash Partner Center issues from our registered publisher CN.
+    /// Must stay in lockstep with Package.appxmanifest Identity and ShellExtension/SettingsReader.cpp,
+    /// or the Settings UI and the shell extension will disagree about where settings.json lives.
     /// </summary>
-    public const string PackageFamilyName = "RTClickPng_626labs0000";
+    public const string PackageFamilyName = "626LabsLLC.RightClicktoPNG_wz1chhb2h2v4a";
 
     /// <summary>
     /// Filename of the settings JSON document written into the package's LocalState folder.

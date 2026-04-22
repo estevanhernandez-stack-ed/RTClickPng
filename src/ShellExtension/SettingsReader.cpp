@@ -43,7 +43,7 @@ namespace {
         }
         std::wstring path = localAppData;
         CoTaskMemFree(localAppData);
-        path += L"\\Packages\\RTClickPng_626labs0000\\LocalState\\settings.json";
+        path += L"\\Packages\\626LabsLLC.RightClicktoPNG_wz1chhb2h2v4a\\LocalState\\settings.json";
         return path;
     }
 

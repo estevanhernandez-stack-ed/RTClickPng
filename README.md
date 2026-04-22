@@ -105,7 +105,7 @@ right-click menu on any supported image via **Right Click PNG → settings…**.
 Toggles persist to a JSON file the shell extension reads on every right-click:
 
 ```text
-%LOCALAPPDATA%\Packages\626labs.RTClickPng_3fjztnatnmz7a\LocalState\settings.json
+%LOCALAPPDATA%\Packages\626LabsLLC.RightClicktoPNG_wz1chhb2h2v4a\LocalState\settings.json
 ```
 
 Hand-editing the file works too — schema and default values documented in

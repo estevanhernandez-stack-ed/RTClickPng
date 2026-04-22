@@ -13,7 +13,10 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$Subject = 'CN=626 Labs Dev (Self-Signed)',
+    # Must match the Publisher in src/Package/Package.appxmanifest exactly. Partner-Center-issued
+    # CN after the 2026-04-22 identity swap; override if you're regenerating against a different
+    # manifest (e.g. for a fork or a pre-submit manifest rewrite).
+    [string]$Subject = 'CN=177BCE59-0966-4975-9962-10E36652141F',
     [string]$OutputPath = (Join-Path $PSScriptRoot '..\src\Package\RTClickPng_TemporaryKey.pfx'),
     [securestring]$Password = (ConvertTo-SecureString -String 'RTClickPng-Dev' -AsPlainText -Force)
 )

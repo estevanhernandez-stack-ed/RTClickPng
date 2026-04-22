@@ -10,14 +10,14 @@
   IgnorableNamespaces="uap uap10 rescap desktop4 desktop5 com">
 
   <Identity
-    Name="626labs.RTClickPng"
-    Publisher="CN=626 Labs Dev (Self-Signed)"
+    Name="626LabsLLC.RightClicktoPNG"
+    Publisher="CN=177BCE59-0966-4975-9962-10E36652141F"
     Version="0.1.0.0"
     ProcessorArchitecture="x64" />
 
   <Properties>
     <DisplayName>Right Click PNG</DisplayName>
-    <PublisherDisplayName>626 Labs</PublisherDisplayName>
+    <PublisherDisplayName>626Labs LLC</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

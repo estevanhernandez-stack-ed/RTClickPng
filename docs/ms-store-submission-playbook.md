@@ -80,15 +80,22 @@ visible WPF window with a dark title bar and working toggles.
 
 Store ingestion re-signs with Microsoft's publisher cert, BUT the `Publisher`
 attribute in [`Package.appxmanifest:14`](../src/Package/Package.appxmanifest#L14)
-must match Partner Center's registered publisher name *exactly* — case-sensitive,
-punctuation-sensitive. Currently the manifest says
-`CN=626 Labs Dev (Self-Signed)` which is the dev cert. Before submission, swap
-to the Partner-Center-issued name (e.g. `CN=626 Labs LLC` or whatever the
-registered entity is).
+must match Partner Center's registered identity *exactly* — case-sensitive,
+punctuation-sensitive. We swapped to the Partner-Center-issued values on
+2026-04-22:
 
-Don't commit the production `Publisher` CN back to main — use a build-time
-variable or a release branch. Dev cert stays in the PFX under
-[`src/Package/RTClickPng_TemporaryKey.pfx`](../src/Package/RTClickPng_TemporaryKey.pfx).
+- `Name`: `626LabsLLC.RightClicktoPNG`
+- `Publisher`: `CN=177BCE59-0966-4975-9962-10E36652141F` (Partner-Center-issued GUID)
+- `PublisherDisplayName`: `626Labs LLC`
+- Package Family Name: `626LabsLLC.RightClicktoPNG_wz1chhb2h2v4a`
+- Store ID: `9PKKLK6R5WFL`
+
+The self-signed dev cert (`CN=626 Labs Dev (Self-Signed)`) will no longer sign
+the production manifest because the subject mismatches the Publisher GUID.
+For Store builds this is fine — we publish unsigned and let Microsoft re-sign.
+For local sideload testing, regenerate the dev cert with the Publisher GUID as
+its subject via [`build/create-dev-cert.ps1`](../build/create-dev-cert.ps1)
+(its default was updated to match the new Publisher).
 
 ---
 
@@ -163,11 +170,11 @@ hiding it. Reviewers trust honest submissions faster.
    `ProjectReference` to `ShellExtension.vcxproj`; if you ever rename the
    output folder, CLSIDs won't resolve and every verb silently hides.
 2. **`PackageFamilyName` is computed from the cert publisher subject.** The
-   hash `626labs.RTClickPng_3fjztnatnmz7a` baked into
+   current value `626LabsLLC.RightClicktoPNG_wz1chhb2h2v4a` is baked into
    [`src/Shared/Paths.cs:14`](../src/Shared/Paths.cs#L14) and the
-   [`SettingsReader.cpp:46`](../src/ShellExtension/SettingsReader.cpp#L46) path
-   **will change** when we switch to the Store-issued cert. Both files need
-   to be updated in lockstep, or the settings file and the shell extension
+   [`SettingsReader.cpp:46`](../src/ShellExtension/SettingsReader.cpp#L46)
+   path. If the Partner Center publisher identity ever changes, both files
+   need to update in lockstep or the settings file and the shell extension
    will disagree about where `settings.json` lives.
 3. **`InvariantGlobalization` is per-project, not repo-wide.** The AOT Engine
    sets it in [`src/Engine/Engine.csproj:19`](../src/Engine/Engine.csproj#L19),

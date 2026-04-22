@@ -40,5 +40,5 @@ Shell extensions are hosted by Explorer; you can't run them directly.  The suppo
 1. Build the MSIX: `msbuild src/Package/Package.wapproj /p:Configuration=Release /p:Platform=x64`
 2. Install it: `Add-AppxPackage -Path <path-to-msix>`
 3. Right-click an image in File Explorer to see the verbs.
-4. To iterate on a code change: uninstall (`Get-AppxPackage 626labs.RTClickPng | Remove-AppxPackage`),
+4. To iterate on a code change: uninstall (`Get-AppxPackage 626LabsLLC.RightClicktoPNG | Remove-AppxPackage`),
    rebuild, re-install.  Explorer unloads the DLL automatically on MSIX uninstall.
