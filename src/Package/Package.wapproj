@@ -18,7 +18,11 @@
     <AppxAutoIncrementPackageRevision>false</AppxAutoIncrementPackageRevision>
     <PackageCertificateKeyFile Condition="'$(PackageCertificateKeyFile)'==''">RTClickPng_TemporaryKey.pfx</PackageCertificateKeyFile>
     <PackageCertificatePassword Condition="'$(PackageCertificatePassword)'==''">RTClickPng-Dev</PackageCertificatePassword>
-    <EntryPointProjectUniqueName>..\Engine\Engine.csproj</EntryPointProjectUniqueName>
+    <!-- Primary tile-activated entry point.  MSBuild packaging rewrites the AppxManifest's
+         Application[@Executable] attribute based on this project's output, overriding whatever
+         the source manifest says.  Must match Package.appxmanifest Executable="Settings\..." or
+         the built manifest will launch the Engine console on tile click instead of the WPF UI. -->
+    <EntryPointProjectUniqueName>..\Settings\Settings.csproj</EntryPointProjectUniqueName>
     <GenerateAppInstallerFile>false</GenerateAppInstallerFile>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
   </PropertyGroup>
@@ -41,8 +45,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Ship PNG assets only; exclude our build-time script helpers. -->
-    <Content Include="Assets\**\*.png" />
+    <!-- Ship PNG assets only; exclude our build-time script helpers.
+         CopyToOutputDirectory stages them into bin\<Platform>\<Config>\Assets\ so
+         `Add-AppxPackage -Register` against the loose layout can resolve tile icons
+         and splash screen during activation (missing assets fault the tile launch). -->
+    <Content Include="Assets\**\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
