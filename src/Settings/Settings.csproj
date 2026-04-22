@@ -11,6 +11,10 @@
     <SelfContained>true</SelfContained>
     <PublishSingleFile>false</PublishSingleFile>
     <Nullable>enable</Nullable>
+    <!-- WPF's font-cache initializer creates CultureInfo("en") during the first text-measure
+         pass; invariant globalization (set in Directory.Build.props for the AOT Engine) makes
+         that throw CultureNotFoundException before any user code runs.  Override to false here. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
