@@ -1,5 +1,9 @@
 # Right Click PNG
 
+[![Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-install-0078d4?logo=microsoft&logoColor=white)](https://apps.microsoft.com/detail/9PKKLK6R5WFL)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Windows 11](https://img.shields.io/badge/Windows%2011-x64-blue)](https://apps.microsoft.com/detail/9PKKLK6R5WFL)
+
 > Convert images to PNG from the right-click menu. No network calls, no detours.
 
 You right-click a `.webp` or `.avif` or `.heic` on a web page, save it, and Windows
@@ -12,9 +16,17 @@ All decoding happens locally. The app never makes a network call.
 
 ## Install
 
-- **Microsoft Store**: [Right Click PNG](https://apps.microsoft.com/detail/<TBD>) (pending submission)
-- **From source**: see below
-- **Source**: <https://github.com/estevanhernandez-stack-ed/RTClickPng>
+**Microsoft Store (recommended):** <https://apps.microsoft.com/detail/9PKKLK6R5WFL>
+
+The Store install auto-updates and handles uninstall cleanly. Works on Windows 11 x64
+(build 22621+).
+
+**Sideload (developers, pre-Store testing):** the current MSIX is attached to the
+[latest GitHub release](https://github.com/estevanhernandez-stack-ed/RTClickPng/releases/latest);
+install with `Add-AppxPackage -AllowUnsigned` under Windows 11 Developer Mode.
+
+**From source:** build instructions below. Source at
+<https://github.com/estevanhernandez-stack-ed/RTClickPng>.
 
 ## What it does
 

@@ -137,7 +137,7 @@ Short description (200 char cap):
 
 ## Notes-to-Publisher boilerplate (first submission)
 
-```
+```text
 Right Click PNG is a Win32-identity shell extension packaged as MSIX.
 Architecture brief:
 - src/ShellExtension (C++/COM) — IExplorerCommand verbs hosted in dllhost
@@ -245,3 +245,123 @@ non-obvious divergence is `vswhere` being pre-on-PATH in GitHub runners.
 **When to use which.** Local for iteration, rejection-fix turnaround, and
 one-off store submissions. CI for verified-source-of-truth builds and the
 actual Release artifact you upload to Partner Center.
+
+---
+
+## Lessons from the 2026-04-22 submission cycle
+
+Submitted 2026-04-22 ~15:00 CST, certified and live by 2026-04-22 ~15:15 CST.
+Idea-to-live: ~24 hours. Seven landmines we hit along the way that I didn't
+know before this cycle; preserving them here so the next 626Labs app skips
+them.
+
+### 1. `InvariantGlobalization=true` silently kills WPF on first text layout
+
+**Where it surfaced.** WPF Settings window silent-exited before any user code
+ran. No WER, no crash dump, no log — because the crash was in `MS.Internal.FontCache.MajorLanguages..cctor()`
+creating `new CultureInfo("en")` during the first `TextBlock` measure pass,
+and the process was spawned by `dllhost.exe` with no attached console.
+
+**Root cause.** `Directory.Build.props` set `<InvariantGlobalization>true</InvariantGlobalization>`
+at the repo level — correct for the AOT Engine (size + no ICU dep), fatal for
+WPF (needs real cultures for text-layout typography checks).
+
+**Rule.** `InvariantGlobalization` is per-project, not repo-wide. If a repo
+mixes AOT native-code projects with WPF / WinUI / any UI that touches text
+layout, the UI project MUST explicitly override:
+
+```xml
+<InvariantGlobalization>false</InvariantGlobalization>
+```
+
+**Faster diagnosis next time.** When a packaged .NET WinExe silent-exits
+with no WER, run the unpackaged `.exe` from `cmd.exe` — stderr with the
+full stack trace surfaces instantly.
+
+### 2. `EntryPointProjectUniqueName` in `.wapproj` silently overrides the manifest `Executable`
+
+**Where it surfaced.** Tile clicks launched the wrong executable (the AOT
+console engine, which exited immediately with usage text). Looked like a
+crash because the window flashed and disappeared; no crash dump because
+it was a clean exit with a non-zero code.
+
+**Root cause.** MSBuild's MSIX packaging step rewrites
+`Application/@Executable` in the built `AppxManifest.xml` using whatever
+project is named in `<EntryPointProjectUniqueName>`. Whatever the source
+manifest says is ignored.
+
+**Rule.** `<EntryPointProjectUniqueName>` must point at the project that
+provides your tile-launched entry point, not just "a project that's
+involved in the package." Cross-check by `grep Executable=` in the built
+manifest after a build.
+
+### 3. `<Content>` packaging doesn't auto-stage into the loose layout
+
+**Where it surfaced.** `Add-AppxPackage -Register` against the loose
+build layout failed to render tile icons and splash because the `Assets\`
+folder wasn't next to `AppxManifest.xml`. The MSIX had them; the loose
+layout didn't.
+
+**Rule.** `<Content Include="Assets\**\*.png" />` packs into the MSIX
+but doesn't stage for `Register`. Add:
+
+```xml
+<Content Include="Assets\**\*.png">
+  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+</Content>
+```
+
+### 4. `DisplayName` in manifest must *exactly* match the Partner-Center-reserved name
+
+Case-sensitive, whitespace-sensitive. Our reservation was
+**"Right Click to PNG"** (with the "to"); the manifest said
+**"Right Click PNG"**. Rejection: `Package/Properties/DisplayName`
+mismatch.
+
+**Trick for brand consistency.** Use the formal reservation as `DisplayName`
+(required), and add `ShortName="Your Friendly Name"` to `uap:DefaultTile`
+so the actual Start tile reads the friendly version. The only place users
+ever see the formal name is the Store listing header.
+
+### 5. MSIX `Identity.Version` uniqueness is *global across all uploads* — even rejected ones
+
+You can't re-upload a corrected package at the same version as a rejected
+one. Every attempt consumes the (Name, Version, Architecture) slot. Bump
+the version on every resubmission, even if the bits change <1 KB.
+
+### 6. MSIX `Identity.Version` revision digit must be `0`
+
+Store policy: `X.Y.Z.0` required. The revision (4th) digit is reserved
+for OEM / internal use; Store rejects anything else. So the bump ladder
+for rebuilds is the **build digit**:
+
+```text
+0.1.0.0  →  0.1.1.0  →  0.1.2.0  →  0.2.0.0
+```
+
+The revision digit stays `.0` forever.
+
+### 7. `Add-AppxPackage -AllowUnsigned` fails without the "unsigned namespace" in Publisher
+
+When the manifest Publisher is a production-format CN (especially a GUID
+from Partner Center), Windows refuses the `-AllowUnsigned` install with
+HRESULT `0x80073D2C` because the Publisher isn't in the reserved unsigned
+namespace that `AppxPackageSigningEnabled=false` is supposed to add.
+
+**Workaround for developer-mode sideload against a production-identity
+manifest.** Use `Add-AppxPackage -Register <path-to-AppxManifest.xml>`
+against the loose build layout. `-Register` bypasses signature verification
+entirely — same iteration loop, no cert dance.
+
+### Honorable mentions
+
+- **Partner Center's "short name" field** is cosmetic, not the DisplayName
+  constraint. They're different fields with different rules.
+- **Different `Identity.Name` → different package.** Windows considers
+  `OldLabs.OldName` and `NewLabs.NewName` two separate MSIX packages even
+  if they declare the same shell extension CLSIDs. Uninstall the old one
+  before registering the new one or you get duplicated context-menu verbs.
+- **Notes-to-reviewers is underrated.** A tight architecture brief + a
+  60-second review path + honest disclosure of any known quirks appears
+  to compress certification wall-clock dramatically. Worth the 30 minutes
+  of writing time every submission.

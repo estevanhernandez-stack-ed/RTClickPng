@@ -5,13 +5,17 @@ Versioning: [SemVer](https://semver.org/).
 
 ## [0.1.1.0] — 2026-04-22
 
-First public preview. Feature-complete for the v1 scope.
+**Shipped to Microsoft Store on 2026-04-22** —
+<https://apps.microsoft.com/detail/9PKKLK6R5WFL>
+
+First public release. Feature-complete for the v1 scope. Microsoft Store ID
+`9PKKLK6R5WFL`; idea to Store-certified in approximately 24 hours.
 
 The 4-part MSIX Identity.Version reflects Microsoft Store submission mechanics,
 not product change — 0.1.0.0 was consumed in the submission queue during
 DisplayName-reservation + uniqueness troubleshooting, and 0.1.0.1 failed the
 Store policy that requires a revision digit of 0 (`X.Y.Z.0`). 0.1.1.0 is the
-first build that actually ships.
+first build that actually shipped.
 
 ### Added
 
