@@ -46,10 +46,10 @@
       <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
       <PublishProfile>Properties\PublishProfiles\win-x64.pubxml</PublishProfile>
     </ProjectReference>
-    <ProjectReference Include="..\Settings\Settings.csproj">
-      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-      <PublishProfile>Properties\PublishProfiles\win-x64.pubxml</PublishProfile>
-    </ProjectReference>
+    <!-- Settings WinUI 3 app is scaffolded at src/Settings but deferred to v1.1 — a packaged
+         WinUI 3 .NET app silent-exits before .NET starts in our current build and we didn't
+         want to spend more ship-blocking time on it.  Shell extension reads settings.json on
+         every invocation, so users edit the file directly in v1 per docs/SETTINGS.md. -->
     <ProjectReference Include="..\ShellExtension\ShellExtension.vcxproj" />
   </ItemGroup>
 
