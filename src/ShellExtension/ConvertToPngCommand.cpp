@@ -308,46 +308,28 @@ IFACEMETHODIMP OpenSettingsCommand::GetState(IShellItemArray* items, BOOL, EXPCM
 
 IFACEMETHODIMP OpenSettingsCommand::Invoke(IShellItemArray*, IBindCtx*) noexcept
 {
-    // Open settings.json in Notepad.  Avoids the silently-exiting WinUI / WPF packaged-exe
-    // activation path that broke Settings.exe; Notepad is in-box on every Windows install
-    // and Shell_Execute inherits our package identity when spawned from dllhost.
-    PWSTR localAppData = nullptr;
-    if (FAILED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &localAppData)) || !localAppData)
-        return S_OK;
-    std::filesystem::path settingsPath = localAppData;
-    CoTaskMemFree(localAppData);
-    settingsPath = settingsPath / L"Packages" / L"626labs.RTClickPng_3fjztnatnmz7a" / L"LocalState" / L"settings.json";
+    // Resolve the Settings exe next to ours: <pkg>\ShellExtension\ShellExtension.dll
+    // -> <pkg>\Settings\RTClickPng.Settings.exe
+    auto engineExe = EngineLauncher::ResolveEngineExePath();
+    if (engineExe.empty()) return S_OK;
+    auto settingsExe = std::filesystem::path(engineExe)
+        .parent_path()                              // Engine/
+        .parent_path()                              // pkg root
+        / L"Settings" / L"RTClickPng.Settings.exe";
+    if (!std::filesystem::exists(settingsExe)) return S_OK;
 
-    // Ensure the file exists with defaults so Notepad opens a valid, parseable document.
-    std::error_code ec;
-    std::filesystem::create_directories(settingsPath.parent_path(), ec);
-    if (!std::filesystem::exists(settingsPath, ec))
+    // Fire-and-forget: detach from us so the Settings window stays open after dllhost unloads.
+    STARTUPINFOW si{};
+    si.cb = sizeof(si);
+    PROCESS_INFORMATION pi{};
+    std::wstring cmd = L"\"" + settingsExe.wstring() + L"\"";
+    if (CreateProcessW(nullptr, cmd.data(), nullptr, nullptr, FALSE,
+                       DETACHED_PROCESS | CREATE_BREAKAWAY_FROM_JOB,
+                       nullptr, nullptr, &si, &pi))
     {
-        static constexpr const char* kDefaults =
-            "{\r\n"
-            "  \"schemaVersion\": 1,\r\n"
-            "  \"showJpegVariants\": false,\r\n"
-            "  \"confirmBeforeOverwrite\": true\r\n"
-            "}\r\n";
-        HANDLE h = CreateFileW(settingsPath.c_str(), GENERIC_WRITE, 0, nullptr,
-                               CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
-        if (h != INVALID_HANDLE_VALUE)
-        {
-            DWORD written = 0;
-            WriteFile(h, kDefaults, static_cast<DWORD>(strlen(kDefaults)), &written, nullptr);
-            CloseHandle(h);
-        }
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
     }
-
-    // Launch Notepad on the file.
-    auto cmd = L"\"" + settingsPath.wstring() + L"\"";
-    SHELLEXECUTEINFOW info{};
-    info.cbSize = sizeof(info);
-    info.lpFile = L"notepad.exe";
-    info.lpParameters = cmd.c_str();
-    info.nShow = SW_SHOWNORMAL;
-    info.fMask = SEE_MASK_NOASYNC;
-    ShellExecuteExW(&info);
     return S_OK;
 }
 

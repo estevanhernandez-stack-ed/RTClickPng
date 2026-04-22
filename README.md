@@ -100,16 +100,16 @@ All of this mirrors what the CI pipeline runs — see [`.github/workflows/build.
 
 ## Settings
 
-v1 ships without an in-app settings window. Toggles live in a JSON file read
-on every right-click:
+Open the branded WPF Settings window from the Start menu tile, or from the
+right-click menu on any supported image via **Right Click PNG → settings…**.
+Toggles persist to a JSON file the shell extension reads on every right-click:
 
 ```text
 %LOCALAPPDATA%\Packages\626labs.RTClickPng_3fjztnatnmz7a\LocalState\settings.json
 ```
 
-v1.1 adds a branded WPF Settings window that launches from the Start tile; see [`docs/SETTINGS.md`](docs/SETTINGS.md) for the schema in either case.
-
-Schema + default values documented in [`docs/SETTINGS.md`](docs/SETTINGS.md).
+Hand-editing the file works too — schema and default values documented in
+[`docs/SETTINGS.md`](docs/SETTINGS.md).
 
 ## Architecture brief
 

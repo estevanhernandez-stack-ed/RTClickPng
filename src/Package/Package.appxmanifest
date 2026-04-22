@@ -33,15 +33,14 @@
 
   <Applications>
     <Application Id="App"
-                 Executable="Engine\RTClickPng.Engine.exe"
+                 Executable="Settings\RTClickPng.Settings.exe"
                  EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
         DisplayName="Right Click PNG"
         Description="Convert images to PNG from the right-click context menu. No network calls, no detours."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\Square44x44Logo.png"
-        AppListEntry="none">
+        Square44x44Logo="Assets\Square44x44Logo.png">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"
                          Square310x310Logo="Assets\Square310x310Logo.png" />
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
