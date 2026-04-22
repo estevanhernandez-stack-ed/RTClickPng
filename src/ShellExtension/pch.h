@@ -19,6 +19,8 @@
 #include <filesystem>
 #include <atomic>
 #include <optional>
+#include <thread>
+#include <cstddef>
 
 using Microsoft::WRL::ComPtr;
 using Microsoft::WRL::RuntimeClass;

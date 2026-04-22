@@ -4,6 +4,7 @@
 #include "SettingsReader.h"
 #include "EngineLauncher.h"
 #include "Notifier.h"
+#include "ClipboardWriter.h"
 
 namespace rtclick {
 
@@ -182,9 +183,69 @@ IFACEMETHODIMP CopyAsPngCommand::GetState(IShellItemArray* items, BOOL, EXPCMDST
     return S_OK;
 }
 
-IFACEMETHODIMP CopyAsPngCommand::Invoke(IShellItemArray*, IBindCtx*) noexcept
+namespace {
+    /// <summary>
+    /// Shared impl for Copy as PNG / JPEG — they both pipe through the PNG engine output and into
+    /// the 3-format clipboard, since ClipboardWriter converts PNG -> the DIB variants internally.
+    /// (JPEG-on-clipboard is niche; Teams/Figma/Photoshop all accept PNG-format clipboard data.)
+    /// </summary>
+    void RunCopyBatch(IShellItemArray* items, bool /*jpeg*/) noexcept
+    {
+        auto paths = ExplorerCommandBase<CopyAsPngCommand>::GetSelectionPaths(items);
+        if (paths.size() != 1) return;   // single-selection guarded in GetState, but defensive
+        const auto& src = paths[0];
+
+        auto engineExe = EngineLauncher::ResolveEngineExePath();
+        if (engineExe.empty())
+        {
+            Notifier::ConvertError(src, L"Engine executable not found in package.");
+            return;
+        }
+
+        std::wstring args;
+        args.append(L"copy ");
+        args.append(Quote(src));
+
+        auto r = EngineLauncher::Run(engineExe, args, /*captureStdout=*/true);
+        if (r.exitCode != 0)
+        {
+            Notifier::ConvertError(src, r.stderrMessage.empty()
+                ? (L"engine exit " + std::to_wstring(r.exitCode))
+                : r.stderrMessage);
+            return;
+        }
+
+        // stdout begins with a 4-byte big-endian length prefix, then the PNG bytes.
+        if (r.stdoutBytes.size() < 4)
+        {
+            Notifier::ConvertError(src, L"Engine produced no output.");
+            return;
+        }
+        const auto& b = r.stdoutBytes;
+        size_t declared =
+            (static_cast<size_t>(std::to_integer<uint8_t>(b[0])) << 24) |
+            (static_cast<size_t>(std::to_integer<uint8_t>(b[1])) << 16) |
+            (static_cast<size_t>(std::to_integer<uint8_t>(b[2])) <<  8) |
+             static_cast<size_t>(std::to_integer<uint8_t>(b[3]));
+        if (declared + 4 > b.size())
+        {
+            Notifier::ConvertError(src, L"Engine output truncated.");
+            return;
+        }
+        std::vector<std::byte> pngBytes(b.begin() + 4, b.begin() + 4 + declared);
+
+        if (!ClipboardWriter::SetClipboardFromPng(pngBytes))
+        {
+            Notifier::ConvertError(src, L"Could not write to clipboard.");
+            return;
+        }
+        Notifier::CopyClipboardReady(src);
+    }
+}
+
+IFACEMETHODIMP CopyAsPngCommand::Invoke(IShellItemArray* items, IBindCtx*) noexcept
 {
-    // Item 8 wires ClipboardWriter here.
+    RunCopyBatch(items, /*jpeg=*/false);
     return S_OK;
 }
 
@@ -224,9 +285,9 @@ IFACEMETHODIMP CopyAsJpegCommand::GetState(IShellItemArray* items, BOOL, EXPCMDS
     return S_OK;
 }
 
-IFACEMETHODIMP CopyAsJpegCommand::Invoke(IShellItemArray*, IBindCtx*) noexcept
+IFACEMETHODIMP CopyAsJpegCommand::Invoke(IShellItemArray* items, IBindCtx*) noexcept
 {
-    // Item 8 wires ClipboardWriter here.
+    RunCopyBatch(items, /*jpeg=*/true);
     return S_OK;
 }
 

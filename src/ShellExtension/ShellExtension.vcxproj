@@ -91,6 +91,7 @@
     <ClInclude Include="SettingsReader.h" />
     <ClInclude Include="EngineLauncher.h" />
     <ClInclude Include="Notifier.h" />
+    <ClInclude Include="ClipboardWriter.h" />
   </ItemGroup>
 
   <ItemGroup>
@@ -104,6 +105,7 @@
     <ClCompile Include="SettingsReader.cpp" />
     <ClCompile Include="EngineLauncher.cpp" />
     <ClCompile Include="Notifier.cpp" />
+    <ClCompile Include="ClipboardWriter.cpp" />
   </ItemGroup>
 
   <ItemGroup>

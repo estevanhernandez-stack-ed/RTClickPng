@@ -17,12 +17,27 @@ namespace {
         if (n == 0 || n == MAX_PATH) return {};
         return std::filesystem::path(buf).parent_path();
     }
+
+    /// <summary>
+    /// Drain a handle to EOF into <paramref name="dst"/> (appends).  Non-blocking for the final
+    /// read since the child has already exited by the time we call this.
+    /// </summary>
+    void DrainHandle(HANDLE h, std::string& dst) noexcept
+    {
+        char buf[4096];
+        for (;;)
+        {
+            DWORD avail = 0;
+            if (!PeekNamedPipe(h, nullptr, 0, nullptr, &avail, nullptr) || avail == 0) break;
+            DWORD got = 0;
+            if (!ReadFile(h, buf, static_cast<DWORD>(std::min<size_t>(avail, sizeof(buf))), &got, nullptr) || got == 0) break;
+            dst.append(buf, got);
+        }
+    }
 }
 
 std::wstring EngineLauncher::ResolveEngineExePath() noexcept
 {
-    // DLL lives at <pkg>\ShellExtension\ShellExtension.dll
-    // Engine lives at <pkg>\Engine\RTClickPng.Engine.exe
     auto dllDir = SelfDllDir();
     if (dllDir.empty()) return {};
     auto enginePath = dllDir.parent_path() / L"Engine" / L"RTClickPng.Engine.exe";
@@ -31,15 +46,13 @@ std::wstring EngineLauncher::ResolveEngineExePath() noexcept
     return enginePath.wstring();
 }
 
-EngineResult EngineLauncher::Run(const std::wstring& exePath, const std::wstring& commandLine) noexcept
+EngineResult EngineLauncher::Run(const std::wstring& exePath, const std::wstring& commandLine, bool captureStdout) noexcept
 {
     EngineResult r{};
     r.exitCode = -1;
 
     if (exePath.empty()) { r.stderrMessage = L"engine exe not found"; return r; }
 
-    // Build the full command line: first arg must be the exe path itself.  CreateProcessW
-    // modifies the lpCommandLine buffer, so we copy into a mutable std::wstring first.
     std::wstring fullCmd;
     fullCmd.reserve(exePath.size() + commandLine.size() + 4);
     fullCmd.push_back(L'"');
@@ -47,39 +60,73 @@ EngineResult EngineLauncher::Run(const std::wstring& exePath, const std::wstring
     fullCmd.push_back(L'"');
     if (!commandLine.empty()) { fullCmd.push_back(L' '); fullCmd.append(commandLine); }
 
-    // Pipes for stderr so we can report engine errors up to the toast.
+    // Pipes: always capture stderr; stdout only when asked.
     HANDLE hReadErr = nullptr, hWriteErr = nullptr;
+    HANDLE hReadOut = nullptr, hWriteOut = nullptr;
     SECURITY_ATTRIBUTES sa{sizeof(sa), nullptr, TRUE};
-    if (!CreatePipe(&hReadErr, &hWriteErr, &sa, 0)) { r.stderrMessage = L"CreatePipe failed"; return r; }
-    SetHandleInformation(hReadErr, HANDLE_FLAG_INHERIT, 0);  // keep parent side out of child
+    if (!CreatePipe(&hReadErr, &hWriteErr, &sa, 0))
+    {
+        r.stderrMessage = L"CreatePipe(stderr) failed";
+        return r;
+    }
+    SetHandleInformation(hReadErr, HANDLE_FLAG_INHERIT, 0);
+    if (captureStdout)
+    {
+        // 1 MB buffer — a 20-megapixel PNG can exceed 64KB default.
+        if (!CreatePipe(&hReadOut, &hWriteOut, &sa, 1024 * 1024))
+        {
+            CloseHandle(hReadErr); CloseHandle(hWriteErr);
+            r.stderrMessage = L"CreatePipe(stdout) failed";
+            return r;
+        }
+        SetHandleInformation(hReadOut, HANDLE_FLAG_INHERIT, 0);
+    }
 
     STARTUPINFOW si{};
     si.cb = sizeof(si);
     si.dwFlags = STARTF_USESTDHANDLES;
     si.hStdError = hWriteErr;
-    si.hStdOutput = nullptr;   // convert doesn't write anything interesting to stdout
+    si.hStdOutput = hWriteOut;  // nullptr when not capturing
     si.hStdInput = nullptr;
 
     PROCESS_INFORMATION pi{};
     auto ok = CreateProcessW(
         nullptr, fullCmd.data(),
         nullptr, nullptr,
-        TRUE /*inherit handles for the pipe*/,
+        TRUE,
         CREATE_NO_WINDOW,
         nullptr, nullptr,
         &si, &pi);
 
-    CloseHandle(hWriteErr);  // parent doesn't write to it
+    CloseHandle(hWriteErr);
+    if (hWriteOut) CloseHandle(hWriteOut);
 
     if (!ok)
     {
         CloseHandle(hReadErr);
+        if (hReadOut) CloseHandle(hReadOut);
         auto err = GetLastError();
         r.stderrMessage = L"CreateProcessW failed, err=" + std::to_wstring(err);
         return r;
     }
 
-    // 60 sec timeout per spec.
+    // For stdout capture we must drain the pipe concurrently with the process running —
+    // otherwise the engine blocks once the pipe buffer fills.  Simple thread: read until EOF.
+    std::string outUtf8;
+    std::thread outDrainer;
+    if (captureStdout && hReadOut)
+    {
+        outDrainer = std::thread([&outUtf8, hReadOut]() {
+            char buf[4096];
+            for (;;)
+            {
+                DWORD got = 0;
+                if (!ReadFile(hReadOut, buf, sizeof(buf), &got, nullptr) || got == 0) break;
+                outUtf8.append(buf, got);
+            }
+        });
+    }
+
     auto waitResult = WaitForSingleObject(pi.hProcess, 60'000);
     if (waitResult == WAIT_TIMEOUT)
     {
@@ -96,17 +143,26 @@ EngineResult EngineLauncher::Run(const std::wstring& exePath, const std::wstring
         r.exitCode = static_cast<int>(code);
     }
 
-    // Drain stderr (non-blocking since process is dead by now).
+    // Close the read end to unblock our drainer (ReadFile returns on EOF once the write end is gone).
+    if (hReadOut)
     {
-        char buf[4096];
-        DWORD n = 0;
+        // First let drainer see any remaining bytes + hit EOF naturally.
+        // We already closed hWriteOut; ReadFile will return 0 when the pipe is empty.
+    }
+
+    if (outDrainer.joinable()) outDrainer.join();
+    if (hReadOut) CloseHandle(hReadOut);
+
+    if (captureStdout)
+    {
+        r.stdoutBytes.resize(outUtf8.size());
+        std::memcpy(r.stdoutBytes.data(), outUtf8.data(), outUtf8.size());
+    }
+
+    // Drain stderr post-exit.
+    {
         std::string accum;
-        while (PeekNamedPipe(hReadErr, nullptr, 0, nullptr, &n, nullptr) && n > 0)
-        {
-            DWORD got = 0;
-            if (!ReadFile(hReadErr, buf, static_cast<DWORD>(std::min<size_t>(n, sizeof(buf))), &got, nullptr) || got == 0) break;
-            accum.append(buf, got);
-        }
+        DrainHandle(hReadErr, accum);
         if (!accum.empty())
         {
             auto wideLen = MultiByteToWideChar(CP_UTF8, 0, accum.c_str(), (int)accum.size(), nullptr, 0);
