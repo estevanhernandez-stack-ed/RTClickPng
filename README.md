@@ -14,12 +14,12 @@ All decoding happens locally. The app never makes a network call.
 
 - **Microsoft Store**: [Right Click PNG](https://apps.microsoft.com/detail/<TBD>) (pending submission)
 - **From source**: see below
-- **Source**: https://github.com/estevanhernandez-stack-ed/RTClickPng
+- **Source**: <https://github.com/estevanhernandez-stack-ed/RTClickPng>
 
 ## What it does
 
 | You right-click… | You see |
-|---|---|
+| --- | --- |
 | `.webp` / `.avif` / `.heic` / `.heif` / `.jpg` / `.bmp` / `.tif` / `.gif` | **Convert to PNG**, **Copy as PNG** |
 | `.png` | **Copy as PNG** (workflow win — one-click paste) |
 | A supported image with *Show JPEG variants* turned on | Adds **Convert to JPEG** and **Copy as JPEG** |
@@ -35,7 +35,7 @@ so transparency and ICC profiles survive the hop into modern editors.
 Three pieces, one MSIX package:
 
 | Piece | Lives in | Role |
-|---|---|---|
+| --- | --- | --- |
 | **Engine** (.NET 9 AOT, ~1 MB) | `src/Engine/` | Standalone CLI that does the decode + encode. Called by the shell extension per-invocation. |
 | **Shell Extension** (C++/WinRT DLL) | `src/ShellExtension/` | Implements `IExplorerCommand`. Decides what verbs to show, what to name them, what to do on click. Hosted by `dllhost.exe` via the modern Win11 context menu. |
 | **MSIX Package** (wapproj) | `src/Package/` | Signs + packages the above, registers COM classes + file-type associations via the app manifest. |
@@ -103,9 +103,11 @@ All of this mirrors what the CI pipeline runs — see [`.github/workflows/build.
 v1 ships without an in-app settings window. Toggles live in a JSON file read
 on every right-click:
 
-```
+```text
 %LOCALAPPDATA%\Packages\626labs.RTClickPng_3fjztnatnmz7a\LocalState\settings.json
 ```
+
+v1.1 adds a branded WPF Settings window that launches from the Start tile; see [`docs/SETTINGS.md`](docs/SETTINGS.md) for the schema in either case.
 
 Schema + default values documented in [`docs/SETTINGS.md`](docs/SETTINGS.md).
 
