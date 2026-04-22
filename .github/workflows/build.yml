@@ -1,0 +1,136 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
+
+jobs:
+  build:
+    name: windows-latest ${{ matrix.configuration }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
+
+      # vcpkg binary cache — GitHub Actions backend; NuGet-based, handled by vcpkg internally.
+      - name: Export GitHub Actions cache env for vcpkg
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      # Bootstrap vcpkg + fetch + build the 5 decoder libs.  First run ~30-60 min; cached after.
+      - name: Fetch native decoders
+        shell: pwsh
+        run: ./build/fetch-native.ps1
+
+      # Cache the built vcpkg_installed tree on top of the binary cache so re-runs within the
+      # same git SHA (matrix expansion) skip reinstall entirely.
+      - name: Cache vcpkg_installed
+        uses: actions/cache@v4
+        with:
+          path: vcpkg_installed
+          key: vcpkg-installed-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+
+      - name: Verify CRT consistency
+        shell: pwsh
+        run: ./build/verify-crt.ps1
+
+      - name: Restore (.NET)
+        run: |
+          dotnet restore src/Shared/Shared.csproj -r win-x64
+          dotnet restore src/Engine/Engine.csproj -r win-x64
+          dotnet restore tests/Engine.Tests/Engine.Tests.csproj -r win-x64
+
+      - name: Run xUnit tests (Engine)
+        run: dotnet test tests/Engine.Tests/ -c ${{ matrix.configuration }} --no-restore --logger "trx;LogFileName=engine-${{ matrix.configuration }}.trx" --results-directory TestResults
+
+      - name: Build ShellExtension (C++)
+        run: msbuild src/ShellExtension/ShellExtension.vcxproj /p:Configuration=${{ matrix.configuration }} /p:Platform=x64 /v:minimal /p:TreatWarningsAsErrors=true
+
+      - name: Build + run ShellExtension tests (C++)
+        shell: pwsh
+        run: |
+          msbuild tests/ShellExtension.Tests/ShellExtension.Tests.vcxproj /p:Configuration=Release /p:Platform=x64 /v:minimal
+          $exitCode = & "tests/ShellExtension.Tests/bin/Release/ShellExtensionTests.exe"
+          Write-Host "C++ tests exit code: $LASTEXITCODE"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Decode signing cert
+        if: matrix.configuration == 'Release' && env.PFX_BASE64 != ''
+        shell: pwsh
+        env:
+          PFX_BASE64: ${{ secrets.MSIX_TEST_CERT_PFX }}
+        run: |
+          if (-not $env:PFX_BASE64) { Write-Host "No cert secret — skipping signing for this run."; exit 0 }
+          $bytes = [Convert]::FromBase64String($env:PFX_BASE64)
+          [System.IO.File]::WriteAllBytes("src/Package/RTClickPng_TemporaryKey.pfx", $bytes)
+
+      - name: Build MSIX (Release only)
+        if: matrix.configuration == 'Release'
+        shell: pwsh
+        env:
+          PFX_PASSWORD: ${{ secrets.MSIX_TEST_CERT_PASSWORD }}
+        run: |
+          $sign = "/p:AppxPackageSigningEnabled=false"
+          if (Test-Path "src/Package/RTClickPng_TemporaryKey.pfx") {
+            $sign = "/p:AppxPackageSigningEnabled=true /p:PackageCertificateKeyFile=RTClickPng_TemporaryKey.pfx"
+            if ($env:PFX_PASSWORD) { $sign += " /p:PackageCertificatePassword=$env:PFX_PASSWORD" }
+          }
+          msbuild src/Package/Package.wapproj /p:Configuration=Release /p:Platform=x64 /p:AppxBundle=Never /v:minimal $sign
+
+      - name: Upload MSIX artifact
+        if: matrix.configuration == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: RTClickPng-msix-${{ github.sha }}
+          path: src/Package/AppPackages/**/*.msix
+          if-no-files-found: warn
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.configuration }}
+          path: TestResults/**/*.trx
+          if-no-files-found: ignore
+
+      # Non-blocking vulnerability scan.
+      - name: Dependency vulnerability audit (warn-only)
+        if: matrix.configuration == 'Release'
+        continue-on-error: true
+        run: dotnet list src/Engine/Engine.csproj package --vulnerable --include-transitive
+
+      - name: Clean stale signing cert
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path "src/Package/RTClickPng_TemporaryKey.pfx") {
+            Remove-Item -Force "src/Package/RTClickPng_TemporaryKey.pfx"
+          }
