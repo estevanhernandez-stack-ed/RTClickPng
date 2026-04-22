@@ -11,7 +11,10 @@
     <TargetPlatformVersion>10.0.26100.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.22621.0</TargetPlatformMinVersion>
     <DefaultLanguage>en-US</DefaultLanguage>
-    <AppxPackageSigningEnabled Condition="'$(AppxPackageSigningEnabled)'==''">true</AppxPackageSigningEnabled>
+    <!-- Default to unsigned: matches what Partner Center wants (they re-sign on ingestion) and
+         lets local sideload use `Add-AppxPackage -AllowUnsigned` with Dev Mode.  Override with
+         -p:AppxPackageSigningEnabled=true + a PFX if you specifically want a signed build. -->
+    <AppxPackageSigningEnabled Condition="'$(AppxPackageSigningEnabled)'==''">false</AppxPackageSigningEnabled>
     <AppxAutoIncrementPackageRevision>false</AppxAutoIncrementPackageRevision>
     <PackageCertificateKeyFile Condition="'$(PackageCertificateKeyFile)'==''">RTClickPng_TemporaryKey.pfx</PackageCertificateKeyFile>
     <PackageCertificatePassword Condition="'$(PackageCertificatePassword)'==''">RTClickPng-Dev</PackageCertificatePassword>
