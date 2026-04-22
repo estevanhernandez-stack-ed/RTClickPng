@@ -5,10 +5,13 @@
 
 .DESCRIPTION
     Uses a tiny inline C# / System.Drawing helper (PowerShell + System.Drawing paths get tangled
-    on array-vs-scalar inference).  Produces the standard MSIX set plus splash:
+    on array-vs-scalar inference).  Produces the standard MSIX set plus splash, plus extra
+    square sizes Partner Center's "Store display images" pane accepts:
         Square44x44Logo.png    44x44
         StoreLogo.png          50x50
+        Square71x71Logo.png    71x71     (Store display — small tile)
         Square150x150Logo.png  150x150
+        Square300x300Logo.png  300x300   (Store display — 1:1 app tile icon)
         Square310x310Logo.png  310x310
         Wide310x150Logo.png    310x150   (glyph-left + wordmark-right composition)
         SplashScreen.png       620x300   (same wide composition)
@@ -220,12 +223,14 @@ public static class RtClickIcon
         g.DrawString(eb, font, brush, (w - m.Width) / 2f, h - m.Height - h * 0.05f);
     }
 }
-'@ -ReferencedAssemblies System.Drawing, System.Drawing.Common, System.Drawing.Primitives
+'@ -ReferencedAssemblies System.Drawing, System.Drawing.Common, System.Drawing.Primitives, System.Private.Windows.GdiPlus, System.Private.Windows.Core
 
 $items = @(
     @{ Name='Square44x44Logo.png';   W=44;  H=44;  Kind='square' }
     @{ Name='StoreLogo.png';         W=50;  H=50;  Kind='square' }
+    @{ Name='Square71x71Logo.png';   W=71;  H=71;  Kind='square' }   # Partner Center Store display (small tile)
     @{ Name='Square150x150Logo.png'; W=150; H=150; Kind='square' }
+    @{ Name='Square300x300Logo.png'; W=300; H=300; Kind='square' }   # Partner Center Store display (1:1 app tile icon)
     @{ Name='Square310x310Logo.png'; W=310; H=310; Kind='square' }
     @{ Name='Wide310x150Logo.png';   W=310; H=150; Kind='wide' }
     @{ Name='SplashScreen.png';      W=620; H=300; Kind='wide' }
