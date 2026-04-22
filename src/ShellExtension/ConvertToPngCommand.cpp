@@ -291,4 +291,46 @@ IFACEMETHODIMP CopyAsJpegCommand::Invoke(IShellItemArray* items, IBindCtx*) noex
     return S_OK;
 }
 
+// ============ Right Click PNG Settings... ============
+
+IFACEMETHODIMP OpenSettingsCommand::GetTitle(IShellItemArray*, LPWSTR* title) noexcept
+{
+    return SHStrDupW(L"Right Click PNG settings…", title);
+}
+
+IFACEMETHODIMP OpenSettingsCommand::GetState(IShellItemArray* items, BOOL, EXPCMDSTATE* state) noexcept
+{
+    // Show whenever any of our other verbs would show — reuse the supported-extension gate.
+    auto paths = GetSelectionPaths(items);
+    *state = FileFilter::AllSupported(paths) ? ECS_ENABLED : ECS_HIDDEN;
+    return S_OK;
+}
+
+IFACEMETHODIMP OpenSettingsCommand::Invoke(IShellItemArray*, IBindCtx*) noexcept
+{
+    // Resolve the Settings exe next to ours: <pkg>\ShellExtension\ShellExtension.dll
+    // -> <pkg>\Settings\RTClickPng.Settings.exe
+    auto engineExe = EngineLauncher::ResolveEngineExePath();
+    if (engineExe.empty()) return S_OK;
+    auto settingsExe = std::filesystem::path(engineExe)
+        .parent_path()                              // Engine/
+        .parent_path()                              // pkg root
+        / L"Settings" / L"RTClickPng.Settings.exe";
+    if (!std::filesystem::exists(settingsExe)) return S_OK;
+
+    // Fire-and-forget: detach from us so the Settings window stays open after dllhost unloads.
+    STARTUPINFOW si{};
+    si.cb = sizeof(si);
+    PROCESS_INFORMATION pi{};
+    std::wstring cmd = L"\"" + settingsExe.wstring() + L"\"";
+    if (CreateProcessW(nullptr, cmd.data(), nullptr, nullptr, FALSE,
+                       DETACHED_PROCESS | CREATE_BREAKAWAY_FROM_JOB,
+                       nullptr, nullptr, &si, &pi))
+    {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+    return S_OK;
+}
+
 } // namespace rtclick

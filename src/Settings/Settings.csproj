@@ -8,7 +8,6 @@
     <RootNamespace>RTClickPng.Settings</RootNamespace>
     <AssemblyName>RTClickPng.Settings</AssemblyName>
     <UseWPF>true</UseWPF>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>false</PublishSingleFile>
     <Nullable>enable</Nullable>
@@ -18,7 +17,4 @@
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Manifest Include="$(ApplicationManifest)" />
-  </ItemGroup>
 </Project>

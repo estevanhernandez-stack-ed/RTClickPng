@@ -63,6 +63,11 @@ extern "C" HRESULT WINAPI DllGetClassObject(REFCLSID clsid, REFIID riid, LPVOID*
         auto f = Microsoft::WRL::Make<CommandClassFactory<CopyAsJpegCommand>>();
         return f ? f->QueryInterface(riid, ppv) : E_OUTOFMEMORY;
     }
+    if (IsEqualCLSID(clsid, CLSID_OpenSettingsCommand))
+    {
+        auto f = Microsoft::WRL::Make<CommandClassFactory<OpenSettingsCommand>>();
+        return f ? f->QueryInterface(riid, ppv) : E_OUTOFMEMORY;
+    }
     return CLASS_E_CLASSNOTAVAILABLE;
 }
 

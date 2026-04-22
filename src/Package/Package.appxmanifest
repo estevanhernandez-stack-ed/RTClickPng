@@ -60,6 +60,8 @@
                          Path="ShellExtension\ShellExtension.dll" ThreadingModel="STA" />
               <com:Class Id="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07"
                          Path="ShellExtension\ShellExtension.dll" ThreadingModel="STA" />
+              <com:Class Id="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01"
+                         Path="ShellExtension\ShellExtension.dll" ThreadingModel="STA" />
             </com:SurrogateServer>
           </com:ComServer>
         </com:Extension>
@@ -73,66 +75,77 @@
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
             <desktop4:ItemType Type=".avif">
               <desktop4:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
             <desktop4:ItemType Type=".heic">
               <desktop4:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
             <desktop4:ItemType Type=".heif">
               <desktop4:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
             <desktop4:ItemType Type=".jpg">
               <desktop4:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
             <desktop4:ItemType Type=".jpeg">
               <desktop4:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
             <desktop4:ItemType Type=".png">
               <desktop4:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
             <desktop4:ItemType Type=".bmp">
               <desktop4:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
             <desktop4:ItemType Type=".tif">
               <desktop4:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
             <desktop4:ItemType Type=".tiff">
               <desktop4:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
             <desktop4:ItemType Type=".gif">
               <desktop4:Verb Id="ConvertToPng"  Clsid="68730B57-152E-4BC9-A158-3A03EE03465A" />
               <desktop4:Verb Id="CopyAsPng"     Clsid="D1407350-4611-4621-802E-475C82006858" />
               <desktop4:Verb Id="ConvertToJpeg" Clsid="DC177957-7F24-486D-B4CB-D69FA4580C8F" />
               <desktop4:Verb Id="CopyAsJpeg"    Clsid="7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07" />
+              <desktop4:Verb Id="Settings"      Clsid="AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01" />
             </desktop4:ItemType>
           </desktop4:FileExplorerContextMenus>
         </desktop4:Extension>

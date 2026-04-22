@@ -22,6 +22,11 @@ constexpr GUID CLSID_ConvertToJpegCommand =
 constexpr GUID CLSID_CopyAsJpegCommand =
     { 0x7C7F2F20, 0x9F1E, 0x4F0F, { 0x9F, 0xA8, 0xD4, 0x04, 0x36, 0x9C, 0x2C, 0x07 } };
 
+// OpenSettings -> launch Settings.exe via CreateProcessW (dllhost child, inherits package identity).
+// Works around broken Start-menu activation of our WPF Settings app on this packaging config.
+constexpr GUID CLSID_OpenSettingsCommand =
+    { 0xAB12D5C0, 0x3E4F, 0x4B1A, { 0x9E, 0x88, 0x5C, 0x3D, 0x7F, 0x91, 0xAA, 0x01 } };
+
 // Each verb is a thin subclass that differs only in title + visibility predicate + output mode.
 
 class ConvertToPngCommand : public ExplorerCommandBase<ConvertToPngCommand>
@@ -49,6 +54,14 @@ public:
 };
 
 class CopyAsJpegCommand : public ExplorerCommandBase<CopyAsJpegCommand>
+{
+public:
+    IFACEMETHODIMP GetTitle(IShellItemArray*, LPWSTR* title) noexcept override;
+    IFACEMETHODIMP GetState(IShellItemArray*, BOOL okToBeSlow, EXPCMDSTATE* state) noexcept override;
+    IFACEMETHODIMP Invoke(IShellItemArray* items, IBindCtx*) noexcept override;
+};
+
+class OpenSettingsCommand : public ExplorerCommandBase<OpenSettingsCommand>
 {
 public:
     IFACEMETHODIMP GetTitle(IShellItemArray*, LPWSTR* title) noexcept override;
