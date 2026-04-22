@@ -64,8 +64,7 @@ modified version. To do so:
 Full LGPL-3.0 license text:
 https://www.gnu.org/licenses/lgpl-3.0.en.html
 
-Our source code is public: https://github.com/<TBD>/RTClickPng
-(replace with final repo URL once published).
+Our source code is public: https://github.com/estevanhernandez-stack-ed/RTClickPng
 
 ---------------------------------------------------------------------------
 libspng  -  BSD-2-Clause

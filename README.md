@@ -14,6 +14,7 @@ All decoding happens locally. The app never makes a network call.
 
 - **Microsoft Store**: [Right Click PNG](https://apps.microsoft.com/detail/<TBD>) (pending submission)
 - **From source**: see below
+- **Source**: https://github.com/estevanhernandez-stack-ed/RTClickPng
 
 ## What it does
 
