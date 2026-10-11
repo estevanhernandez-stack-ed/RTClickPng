@@ -4,7 +4,7 @@
 This is the five-shot plan from `docs/ms-store-submission-playbook.md`, executed, with the
 batch as two frames. The Store captions map to files by position; the canonical,
 approval-tracked copy lives in `store-listing-console/apps/rtclickpng/copy/listing-copy.md`
-(proposed, not yet submitted).
+(approved 2026-10-11, not yet submitted).
 
 1. `01-right-click-menu.png`: the File Explorer menu on a .webp, submenu open
 2. `02-converted-in-place.png`: the new .png beside the original, with the toast
