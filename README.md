@@ -60,8 +60,8 @@ libspng, libjpeg-turbo**. Licenses documented in [`docs/licenses.md`](docs/licen
 Right Click PNG makes **zero network calls**. Decoders run locally against bytes you
 already have on disk. Nothing leaves your machine. The app writes two local files: your
 two settings toggles at `%LOCALAPPDATA%\Packages\626LabsLLC.RightClicktoPNG_wz1chhb2h2v4a\LocalState\settings.json`,
-and, if something goes wrong in the settings app, a crash log (type name and message
-only, never file contents) at `%LOCALAPPDATA%\RTClickPng.Settings.crash.log`. See
+and, only if the settings app fails, a crash log (error type and message only, never file
+contents) at `settings-crash.log` in the same folder, so uninstall removes both. See
 [`PRIVACY.md`](PRIVACY.md) for the full disclosure. You can verify the no-network claim
 with:
 

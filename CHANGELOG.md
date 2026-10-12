@@ -64,5 +64,12 @@ first build that actually shipped.
 
 ## Unreleased
 
-- Microsoft Store submission in flight. Certification outcome will be noted
-  here when it lands.
+### Fixed
+
+- **Settings no longer writes a log on every launch.** 0.1.1.0 wrote a startup
+  trace to `%LOCALAPPDATA%\RTClickPng.Settings.crash.log` each time the
+  settings app opened, outside the package folder, so uninstall left it behind.
+  The settings app now writes a log only when it fails (error type and message,
+  never file contents), to `settings-crash.log` beside `settings.json` in the
+  package's `LocalState` folder. The legacy file is deleted the first time the
+  updated settings app runs.

@@ -37,4 +37,20 @@ public static class Paths
     /// Temp filename used for atomic settings writes (write-temp + File.Move).
     /// </summary>
     public static string SettingsJsonTempPath => SettingsJsonPath + ".tmp";
+
+    /// <summary>
+    /// Settings-app failure log, beside <c>settings.json</c> in the package's LocalState folder so
+    /// MSIX uninstall removes it.  Written only on failure (exception type + message), never on a
+    /// normal launch — PRIVACY.md and the README promise exactly that.
+    /// </summary>
+    public static string CrashLogPath =>
+        Path.Combine(Path.GetDirectoryName(SettingsJsonPath)!, "settings-crash.log");
+
+    /// <summary>
+    /// Where 0.1.1.0 and earlier wrote the log: the raw LocalAppData root, outside the package
+    /// folder, so uninstall left it behind.  Settings deletes it on startup.
+    /// </summary>
+    public static string LegacyCrashLogPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "RTClickPng.Settings.crash.log");
 }
