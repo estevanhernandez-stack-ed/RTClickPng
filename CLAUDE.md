@@ -21,6 +21,7 @@ Windows 11 context-menu image converter, live on the Microsoft Store. Three proc
 - **Engine stdout is a binary channel.** Copy streams a 4-byte big-endian length prefix plus PNG bytes on stdout. Diagnostics go to stderr, or Copy corrupts.
 - **The shell extension runs inside Explorer's host.** Keep it thin and `noexcept`; decode work belongs in the Engine, across the process boundary, so a bad file crashes the Engine and not Explorer.
 - **libheif must keep `default-features: false`** in `vcpkg.json`. The default `hevc` feature pulls GPL-2.0 x265.
+- **Building the MSIX outside a VS Developer shell fails with `MSB3073` at the Engine's Native AOT link step.** The ILCompiler targets call `vswhere.exe`. Prepend `${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer` to `PATH` first.
 - **Local sideload under the production publisher:** `Add-AppxPackage -AllowUnsigned` fails with `0x80073D2C`. Use `Add-AppxPackage -Register <loose-layout>\AppxManifest.xml` instead.
 - **"Verbs missing" reports:** check for the classic-menu registry tweak before debugging code (README, Troubleshooting).
 
