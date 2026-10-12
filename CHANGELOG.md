@@ -64,6 +64,13 @@ first build that actually shipped.
 
 ## Unreleased
 
+### Changed
+
+- **One context-menu entry with the app icon, in both menus.** The verbs now
+  live in a single **Right Click to PNG** submenu. In the classic *Show more
+  options* menu they used to appear as loose, iconless items with other apps'
+  entries between them (#2). The settings verb is now just **Settings…**.
+
 ### Fixed
 
 - **Settings no longer writes a log on every launch.** 0.1.1.0 wrote a startup

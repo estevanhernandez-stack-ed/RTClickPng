@@ -18,20 +18,25 @@ in-proc DLL hosted in dllhost.exe by the modern File Explorer context menu (Win1
 - `dllmain.cpp` — COM class factories + DLL exports (`DllGetClassObject`, `DllCanUnloadNow`).
 - `ShellExtension.def` — controls which symbols are exported.
 - `ExplorerCommandBase.h` — shared `IExplorerCommand` + `IObjectWithSite` helpers.
-- `ConvertToPngCommand.{h,cpp}` — item 5 placeholder.  Three more handlers arrive in item 6.
-- `FileFilter.{h,cpp}` — extension allowlist; real visibility logic in item 6.
+- `ParentCommand.{h,cpp}` — the single registered "Right Click to PNG" verb; serves the five commands as a submenu, carries the icon.
+- `SubCommandOrder.h` — submenu order, COM-free so the test runner can pin it.
+- `ConvertToPngCommand.{h,cpp}` — the five verb commands (Convert/Copy as PNG, Convert/Copy as JPEG, Settings…).
+- `FileFilter.{h,cpp}` — extension allowlist and the per-verb visibility predicates.
 - `SettingsReader.{h,cpp}` — reads `%LOCALAPPDATA%\Packages\<PFN>\LocalState\settings.json` per invocation.
+- `ShellExtension.rc`, `resource.h`, `RightClickPng.ico` — the parent verb's icon (resource 101), rendered by `src/Package/Assets/render-brand-icons.ps1`.
 
 ## CLSIDs (per spec)
 
-| Verb | CLSID | Status |
+| Verb | CLSID | Role |
 |---|---|---|
-| ConvertToPng  | `{68730B57-152E-4BC9-A158-3A03EE03465A}` | item 5 (placeholder) |
-| CopyAsPng     | `{D1407350-4611-4621-802E-475C82006858}` | item 6 |
-| ConvertToJpeg | `{DC177957-7F24-486D-B4CB-D69FA4580C8F}` | item 6 |
-| CopyAsJpeg    | `{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}` | item 6 |
+| RightClickPng (parent) | `{582E2707-2A81-491E-986F-145208BF87D2}` | Only verb registered per file type; submenu host |
+| ConvertToPng  | `{68730B57-152E-4BC9-A158-3A03EE03465A}` | Submenu item 1 |
+| CopyAsPng     | `{D1407350-4611-4621-802E-475C82006858}` | Submenu item 2 |
+| ConvertToJpeg | `{DC177957-7F24-486D-B4CB-D69FA4580C8F}` | Submenu item 3 (JPEG variants on) |
+| CopyAsJpeg    | `{7C7F2F20-9F1E-4F0F-9FA8-D404369C2C07}` | Submenu item 4 (JPEG variants on) |
+| OpenSettings  | `{AB12D5C0-3E4F-4B1A-9E88-5C3D7F91AA01}` | Submenu item 5, "Settings…" |
 
-CLSIDs are permanent ABI — never reuse or renumber.
+The five submenu CLSIDs stay registered in the manifest even though the parent instantiates them directly. CLSIDs are permanent ABI — never reuse or renumber.
 
 ## Testing the DLL in isolation
 
