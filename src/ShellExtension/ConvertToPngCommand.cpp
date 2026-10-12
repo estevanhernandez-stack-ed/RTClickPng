@@ -291,18 +291,18 @@ IFACEMETHODIMP CopyAsJpegCommand::Invoke(IShellItemArray* items, IBindCtx*) noex
     return S_OK;
 }
 
-// ============ Right Click PNG Settings... ============
+// ============ Settings… ============
 
 IFACEMETHODIMP OpenSettingsCommand::GetTitle(IShellItemArray*, LPWSTR* title) noexcept
 {
-    return SHStrDupW(L"Right Click PNG settings…", title);
+    return SHStrDupW(L"Settings…", title);
 }
 
 IFACEMETHODIMP OpenSettingsCommand::GetState(IShellItemArray* items, BOOL, EXPCMDSTATE* state) noexcept
 {
-    // Show whenever any of our other verbs would show — reuse the supported-extension gate.
+    // Same gate as the parent, so the flyout always has at least this item.
     auto paths = GetSelectionPaths(items);
-    *state = FileFilter::AllSupported(paths) ? ECS_ENABLED : ECS_HIDDEN;
+    *state = FileFilter::ShouldShowParent(paths) ? ECS_ENABLED : ECS_HIDDEN;
     return S_OK;
 }
 

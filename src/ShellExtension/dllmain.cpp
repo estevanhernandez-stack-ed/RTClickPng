@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ConvertToPngCommand.h"
+#include "ParentCommand.h"
 
 using namespace rtclick;
 
@@ -66,6 +67,11 @@ extern "C" HRESULT WINAPI DllGetClassObject(REFCLSID clsid, REFIID riid, LPVOID*
     if (IsEqualCLSID(clsid, CLSID_OpenSettingsCommand))
     {
         auto f = Microsoft::WRL::Make<CommandClassFactory<OpenSettingsCommand>>();
+        return f ? f->QueryInterface(riid, ppv) : E_OUTOFMEMORY;
+    }
+    if (IsEqualCLSID(clsid, CLSID_RightClickPngParent))
+    {
+        auto f = Microsoft::WRL::Make<CommandClassFactory<RightClickPngParentCommand>>();
         return f ? f->QueryInterface(riid, ppv) : E_OUTOFMEMORY;
     }
     return CLASS_E_CLASSNOTAVAILABLE;
