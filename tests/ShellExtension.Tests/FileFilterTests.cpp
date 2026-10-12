@@ -13,6 +13,8 @@
 #include <atomic>
 #include <filesystem>
 
+#include "SubCommandOrder.h"
+
 // rtclick::FileFilter uses the shell extension's pch symbols — we only pull in what we need.
 namespace rtclick {
     class FileFilter {
@@ -25,6 +27,7 @@ namespace rtclick {
         static bool ShouldShowCopyAsPng(const std::vector<std::wstring>& paths) noexcept;
         static bool ShouldShowConvertToJpeg(const std::vector<std::wstring>& paths, bool jpeg) noexcept;
         static bool ShouldShowCopyAsJpeg(const std::vector<std::wstring>& paths, bool jpeg) noexcept;
+        static bool ShouldShowParent(const std::vector<std::wstring>& paths) noexcept;
     };
 }
 
@@ -101,6 +104,47 @@ int wmain()
     TEST(FileFilter::ShouldShowCopyAsJpeg({L"a.webp"}, true),              "CopyJpeg toggle-on single: show");
     TEST(FileFilter::ShouldShowCopyAsJpeg({L"a.jpg"}, true),               "CopyJpeg on jpg source: show");
     TEST(!FileFilter::ShouldShowCopyAsJpeg({L"a.webp", L"b.webp"}, true),  "CopyJpeg multi: hide");
+
+    // --- ShouldShowParent ---
+    TEST(FileFilter::ShouldShowParent({L"a.webp"}),                        "Parent: webp single = show");
+    TEST(FileFilter::ShouldShowParent({L"a.png"}),                         "Parent: png single = show");
+    TEST(FileFilter::ShouldShowParent({L"a.webp", L"b.heic"}),             "Parent: supported multi = show");
+    TEST(!FileFilter::ShouldShowParent({L"a.webp", L"notes.txt"}),         "Parent: mixed with unsupported = hide");
+    TEST(!FileFilter::ShouldShowParent({L"a.txt"}),                        "Parent: unsupported = hide");
+    TEST(!FileFilter::ShouldShowParent({}),                                "Parent: empty = hide");
+
+    // --- Parent never opens an empty flyout: visible whenever any child is ---
+    {
+        const std::vector<std::vector<std::wstring>> selections = {
+            {L"a.webp"}, {L"a.png"}, {L"a.jpg"}, {L"a.gif"},
+            {L"a.webp", L"b.webp"}, {L"a.png", L"b.png"}, {L"a.jpg", L"b.jpeg"},
+            {L"a.webp", L"b.txt"}, {L"a.txt"}, {},
+        };
+        for (const auto& sel : selections)
+        {
+            for (bool jpeg : {false, true})
+            {
+                bool anyChild = FileFilter::ShouldShowConvertToPng(sel)
+                             || FileFilter::ShouldShowCopyAsPng(sel)
+                             || FileFilter::ShouldShowConvertToJpeg(sel, jpeg)
+                             || FileFilter::ShouldShowCopyAsJpeg(sel, jpeg);
+                if (anyChild)
+                    TEST(FileFilter::ShouldShowParent(sel), "Parent visible whenever a child is");
+            }
+        }
+    }
+
+    // --- Submenu order (spec: flat, Settings last, no separator) ---
+    {
+        using rtclick::SubCommand;
+        using rtclick::kSubCommandOrder;
+        TEST(kSubCommandOrder.size() == 5,                                 "Order: five subcommands");
+        TEST(kSubCommandOrder[0] == SubCommand::ConvertToPng,              "Order: 1 Convert to PNG");
+        TEST(kSubCommandOrder[1] == SubCommand::CopyAsPng,                 "Order: 2 Copy as PNG");
+        TEST(kSubCommandOrder[2] == SubCommand::ConvertToJpeg,             "Order: 3 Convert to JPEG");
+        TEST(kSubCommandOrder[3] == SubCommand::CopyAsJpeg,                "Order: 4 Copy as JPEG");
+        TEST(kSubCommandOrder[4] == SubCommand::Settings,                  "Order: 5 Settings last");
+    }
 
     std::printf("\n%d / %d passed\n", g_total - g_fail, g_total);
     return g_fail;

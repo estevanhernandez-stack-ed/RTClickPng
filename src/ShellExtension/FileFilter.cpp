@@ -82,4 +82,9 @@ bool FileFilter::ShouldShowCopyAsJpeg(const std::vector<std::wstring>& paths, bo
     return IsSupportedExtension(paths[0]);
 }
 
+bool FileFilter::ShouldShowParent(const std::vector<std::wstring>& paths) noexcept
+{
+    return AllSupported(paths);
+}
+
 } // namespace rtclick

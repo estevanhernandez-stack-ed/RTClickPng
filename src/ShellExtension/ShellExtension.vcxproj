@@ -92,6 +92,7 @@
     <ClInclude Include="EngineLauncher.h" />
     <ClInclude Include="Notifier.h" />
     <ClInclude Include="ClipboardWriter.h" />
+    <ClInclude Include="SubCommandOrder.h" />
   </ItemGroup>
 
   <ItemGroup>
