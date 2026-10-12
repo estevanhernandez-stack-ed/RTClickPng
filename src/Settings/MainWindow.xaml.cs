@@ -15,22 +15,18 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
-        App.Log("MainWindow/ctor start");
         InitializeComponent();
-        App.Log("MainWindow/ctor post-InitializeComponent");
         try
         {
             _current = _service.Read();
-            App.Log("MainWindow/ctor settings read");
             ShowJpegToggle.IsChecked = _current.ShowJpegVariants;
             ConfirmOverwriteToggle.IsChecked = _current.ConfirmBeforeOverwrite;
             StatusText.Text = Paths.SettingsJsonPath;
-            App.Log("MainWindow/ctor status set");
             _loaded = true;
         }
         catch (System.Exception ex)
         {
-            App.Log($"MainWindow/ctor failed: {ex.GetType().Name}: {ex.Message}");
+            App.LogFailure("MainWindow/ctor", ex);
             throw;
         }
     }
