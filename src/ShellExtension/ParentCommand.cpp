@@ -20,6 +20,7 @@ namespace {
         IFACEMETHODIMP Next(ULONG celt, IExplorerCommand** out, ULONG* fetched) noexcept override
         {
             if (!out) return E_POINTER;
+            if (celt > 1 && !fetched) return E_INVALIDARG;   // IEnumXxx contract
             ULONG n = 0;
             while (n < celt && pos < cmds.size())
             {
@@ -32,8 +33,9 @@ namespace {
         }
         IFACEMETHODIMP Skip(ULONG celt) noexcept override
         {
-            pos = (std::min)(cmds.size(), pos + celt);
-            return pos < cmds.size() ? S_OK : S_FALSE;
+            size_t skipped = (std::min)(static_cast<size_t>(celt), cmds.size() - pos);
+            pos += skipped;
+            return skipped == celt ? S_OK : S_FALSE;
         }
         IFACEMETHODIMP Reset() noexcept override
         {

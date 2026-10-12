@@ -34,8 +34,8 @@ install with `Add-AppxPackage -AllowUnsigned` under Windows 11 Developer Mode.
 | --- | --- |
 | `.webp` / `.avif` / `.heic` / `.heif` / `.jpg` / `.bmp` / `.tif` / `.gif` | **Right Click to PNG →** *Convert to PNG*, *Copy as PNG*, *Settings…* |
 | `.png` | **Right Click to PNG →** *Copy as PNG* (workflow win — one-click paste), *Settings…* |
-| A supported image with *Show JPEG variants* turned on | The submenu adds *Convert to JPEG* and *Copy as JPEG* |
-| Multiple files selected | *Convert to PNG* for the batch; *Copy as PNG* hides (single-select only) |
+| A supported image with *Show JPEG variants* turned on | The submenu adds *Convert to JPEG* and *Copy as JPEG*, before *Settings…* |
+| Multiple files selected | *Convert to PNG* for the batch and *Settings…*; *Copy as PNG* hides (single-select only) |
 | A file whose extension isn't in the list | No entry from us. Silent. |
 
 Both the modern and the classic (*Show more options*) menu show a single **Right Click to PNG**

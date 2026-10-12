@@ -212,6 +212,20 @@ int wmain()
                     if (subcommands)
                     {
                         TEST(canUnloadNow() == S_FALSE, "Lifetime: refuses unload while the enumerator is alive");
+
+                        // IEnumXxx contract on the submenu enumerator (five items).
+                        IExplorerCommand* two[2] = {};
+                        TEST(subcommands->Next(2, two, nullptr) == E_INVALIDARG,
+                             "Enum: Next with celt>1 and no fetched pointer = E_INVALIDARG");
+                        subcommands->Reset();
+                        TEST(subcommands->Skip(5) == S_OK, "Enum: exact Skip over all five = S_OK");
+                        TEST(subcommands->Skip(1) == S_FALSE, "Enum: Skip past the end = S_FALSE");
+                        subcommands->Reset();
+                        ULONG fetched = 0;
+                        TEST(subcommands->Next(2, two, &fetched) == S_OK && fetched == 2,
+                             "Enum: Next(2) after Reset fetches two");
+                        for (auto* c : two) if (c) c->Release();
+
                         subcommands->Release();
                     }
                     TEST(canUnloadNow() == S_OK, "Lifetime: allows unload once every object is released");
