@@ -7,6 +7,9 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Match the shipped Engine, which runs invariant (Engine.csproj).  Set here, not in
+         Directory.Build.props, because WPF dies silently under invariant globalization. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>

@@ -5,7 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <InvariantGlobalization>true</InvariantGlobalization>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Company>626Labs LLC</Company>
     <Product>Right Click PNG</Product>
