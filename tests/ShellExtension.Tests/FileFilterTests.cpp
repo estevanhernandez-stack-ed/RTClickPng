@@ -4,6 +4,8 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#include <objbase.h>
+#include <shobjidl_core.h>
 #include <cassert>
 #include <cstdio>
 #include <string>
@@ -39,6 +41,23 @@ static int g_total = 0;
     if (!(cond)) { ++g_fail; std::fprintf(stderr, "FAIL: %s (line %d)\n", name, __LINE__); } \
     else         { std::fprintf(stdout, "  ok: %s\n", name); } \
 } while (0)
+
+// The built ShellExtension.dll, located relative to this exe
+// (tests/ShellExtension.Tests/bin/Release -> src/ShellExtension/bin/<Config>).  Empty if not built.
+static std::wstring FindShellExtensionDll()
+{
+    wchar_t buf[MAX_PATH];
+    auto n = GetModuleFileNameW(nullptr, buf, MAX_PATH);
+    if (n == 0 || n == MAX_PATH) return {};
+    auto repo = std::filesystem::path(std::wstring(buf, n)).parent_path() / L"../../../..";
+    for (auto config : { L"Release", L"Debug" })
+    {
+        auto dll = repo / L"src/ShellExtension/bin" / config / L"ShellExtension.dll";
+        std::error_code ec;
+        if (std::filesystem::exists(dll, ec)) return std::filesystem::weakly_canonical(dll, ec).wstring();
+    }
+    return {};
+}
 
 int wmain()
 {
@@ -144,6 +163,63 @@ int wmain()
         TEST(kSubCommandOrder[2] == SubCommand::ConvertToJpeg,             "Order: 3 Convert to JPEG");
         TEST(kSubCommandOrder[3] == SubCommand::CopyAsJpeg,                "Order: 4 Copy as JPEG");
         TEST(kSubCommandOrder[4] == SubCommand::Settings,                  "Order: 5 Settings last");
+    }
+
+    // --- DLL lifetime: DllCanUnloadNow must refuse while any COM object it served is alive ---
+    // Loads the real built DLL.  dllhost calls CoFreeUnusedLibraries; unloading under a live
+    // command or enumerator crashes the surrogate and the menu entry vanishes.
+    {
+        auto dll = FindShellExtensionDll();
+        if (dll.empty())
+        {
+            std::printf("  SKIP: ShellExtension.dll not built; DLL lifetime tests not run\n");
+        }
+        else
+        {
+            // Parent verb, {582E2707-2A81-491E-986F-145208BF87D2}.
+            constexpr GUID kParentClsid =
+                { 0x582E2707, 0x2A81, 0x491E, { 0x98, 0x6F, 0x14, 0x52, 0x08, 0xBF, 0x87, 0xD2 } };
+            using GetClassObjectFn = HRESULT (WINAPI*)(REFCLSID, REFIID, void**);
+            using CanUnloadNowFn = HRESULT (WINAPI*)();
+
+            HRESULT coInit = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+            HMODULE dllModule = LoadLibraryW(dll.c_str());
+            TEST(dllModule != nullptr, "Lifetime: ShellExtension.dll loads");
+            if (dllModule)
+            {
+                auto getClassObject = reinterpret_cast<GetClassObjectFn>(
+                    reinterpret_cast<void*>(GetProcAddress(dllModule, "DllGetClassObject")));
+                auto canUnloadNow = reinterpret_cast<CanUnloadNowFn>(
+                    reinterpret_cast<void*>(GetProcAddress(dllModule, "DllCanUnloadNow")));
+
+                IClassFactory* factory = nullptr;
+                IExplorerCommand* parent = nullptr;
+                if (getClassObject && canUnloadNow
+                    && SUCCEEDED(getClassObject(kParentClsid, IID_IClassFactory, reinterpret_cast<void**>(&factory))))
+                {
+                    factory->CreateInstance(nullptr, IID_IExplorerCommand, reinterpret_cast<void**>(&parent));
+                    factory->Release();
+                }
+                TEST(parent != nullptr, "Lifetime: parent command instantiates");
+                if (parent)
+                {
+                    TEST(canUnloadNow() == S_FALSE, "Lifetime: refuses unload while the parent command is alive");
+
+                    IEnumExplorerCommand* subcommands = nullptr;
+                    parent->EnumSubCommands(&subcommands);
+                    parent->Release();
+                    TEST(subcommands != nullptr, "Lifetime: parent serves a subcommand enumerator");
+                    if (subcommands)
+                    {
+                        TEST(canUnloadNow() == S_FALSE, "Lifetime: refuses unload while the enumerator is alive");
+                        subcommands->Release();
+                    }
+                    TEST(canUnloadNow() == S_OK, "Lifetime: allows unload once every object is released");
+                }
+                FreeLibrary(dllModule);
+            }
+            if (SUCCEEDED(coInit)) CoUninitialize();
+        }
     }
 
     std::printf("\n%d / %d passed\n", g_total - g_fail, g_total);
