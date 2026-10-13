@@ -87,4 +87,15 @@ bool FileFilter::ShouldShowParent(const std::vector<std::wstring>& paths) noexce
     return AllSupported(paths);
 }
 
+bool FileFilter::ConvertsOntoItself(std::wstring_view source, std::wstring_view targetExt) noexcept
+{
+    auto ext = ExtractExtensionLower(source);
+    if (ext.empty() || ext.size() != targetExt.size()) return false;
+    for (size_t i = 0; i < ext.size(); ++i)
+    {
+        if (ext[i] != (wchar_t)::towlower(targetExt[i])) return false;
+    }
+    return true;
+}
+
 } // namespace rtclick

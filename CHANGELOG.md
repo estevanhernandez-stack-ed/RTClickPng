@@ -73,6 +73,13 @@ first build that actually shipped.
 
 ### Fixed
 
+- **Converting a mixed selection could overwrite an original.** Selecting a
+  `.jpg` with other images and choosing *Convert to JPEG* (or a `.png` with
+  *Convert to PNG*) sent that file onto its own path: re-encoded in place, or an
+  "already exists. Overwrite?" prompt about the original itself. Files already
+  in the target format are now skipped, and the engine refuses to write a file
+  onto itself under any overwrite setting.
+
 - **Settings no longer writes a log on every launch.** 0.1.1.0 wrote a startup
   trace to `%LOCALAPPDATA%\RTClickPng.Settings.crash.log` each time the
   settings app opened, outside the package folder, so uninstall left it behind.

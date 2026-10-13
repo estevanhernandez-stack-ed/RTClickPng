@@ -76,6 +76,10 @@ namespace {
         std::wstring firstError;
         for (const auto& src : paths)
         {
+            // Already in the target format (a.jpg in a mixed selection, Convert to JPEG): its output
+            // path is itself.  Skip it, neither success nor failure; originals are never modified.
+            if (FileFilter::ConvertsOntoItself(src, targetExt)) continue;
+
             auto dst = SwapExtension(src, targetExt);
 
             auto runOnce = [&](const wchar_t* policy) {

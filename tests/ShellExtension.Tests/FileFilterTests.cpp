@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <objbase.h>
 #include <shobjidl_core.h>
+#include <shlobj_core.h>
 #include <cassert>
 #include <cstdio>
 #include <string>
@@ -30,6 +31,7 @@ namespace rtclick {
         static bool ShouldShowConvertToJpeg(const std::vector<std::wstring>& paths, bool jpeg) noexcept;
         static bool ShouldShowCopyAsJpeg(const std::vector<std::wstring>& paths, bool jpeg) noexcept;
         static bool ShouldShowParent(const std::vector<std::wstring>& paths) noexcept;
+        static bool ConvertsOntoItself(std::wstring_view source, std::wstring_view targetExt) noexcept;
     };
 }
 
@@ -57,6 +59,64 @@ static std::wstring FindShellExtensionDll()
         if (std::filesystem::exists(dll, ec)) return std::filesystem::weakly_canonical(dll, ec).wstring();
     }
     return {};
+}
+
+// Real shell selection over files created in %TEMP% (FileFilter only looks at extensions, so
+// zero-byte files are enough).  Caller releases.  Null on failure.
+static IShellItemArray* MakeSelection(const std::vector<std::wstring>& names)
+{
+    wchar_t tmp[MAX_PATH];
+    if (!GetTempPathW(MAX_PATH, tmp)) return nullptr;
+    auto dir = std::filesystem::path(tmp) / L"rtclick-selection-test";
+    std::error_code ec;
+    std::filesystem::create_directories(dir, ec);
+    std::vector<PIDLIST_ABSOLUTE> pidls;
+    for (const auto& name : names)
+    {
+        auto file = dir / name;
+        if (HANDLE h = CreateFileW(file.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, 0, nullptr);
+            h != INVALID_HANDLE_VALUE) CloseHandle(h);
+        PIDLIST_ABSOLUTE pidl = nullptr;
+        if (SUCCEEDED(SHParseDisplayName(file.c_str(), nullptr, &pidl, 0, nullptr))) pidls.push_back(pidl);
+    }
+    IShellItemArray* array = nullptr;
+    if (pidls.size() == names.size())
+    {
+        std::vector<PCIDLIST_ABSOLUTE> constPidls(pidls.begin(), pidls.end());
+        SHCreateShellItemArrayFromIDLists(static_cast<UINT>(constPidls.size()), constPidls.data(), &array);
+    }
+    for (auto p : pidls) CoTaskMemFree(p);
+    return array;
+}
+
+// Visible titles of the parent's submenu for a selection, in order.
+static std::vector<std::wstring> VisibleSubcommands(IExplorerCommand* parent, IShellItemArray* selection)
+{
+    std::vector<std::wstring> titles;
+    IEnumExplorerCommand* e = nullptr;
+    if (FAILED(parent->EnumSubCommands(&e)) || !e) return titles;
+    IExplorerCommand* child = nullptr;
+    ULONG fetched = 0;
+    while (e->Next(1, &child, &fetched) == S_OK && fetched == 1)
+    {
+        EXPCMDSTATE state = ECS_HIDDEN;
+        LPWSTR title = nullptr;
+        if (SUCCEEDED(child->GetState(selection, FALSE, &state)) && state == ECS_ENABLED
+            && SUCCEEDED(child->GetTitle(selection, &title)) && title)
+        {
+            titles.emplace_back(title);
+        }
+        if (title) CoTaskMemFree(title);
+        child->Release();
+    }
+    e->Release();
+    return titles;
+}
+
+static bool Contains(const std::vector<std::wstring>& v, const wchar_t* s)
+{
+    for (const auto& x : v) if (x == s) return true;
+    return false;
 }
 
 int wmain()
@@ -153,6 +213,15 @@ int wmain()
         }
     }
 
+    // --- ConvertsOntoItself: batch items already in the target format are skipped, never rewritten ---
+    TEST(FileFilter::ConvertsOntoItself(L"C:\\x\\a.png", L".png"),         "Self: png -> .png");
+    TEST(FileFilter::ConvertsOntoItself(L"C:\\x\\a.PNG", L".png"),         "Self: PNG -> .png (case-insensitive)");
+    TEST(FileFilter::ConvertsOntoItself(L"C:\\x\\a.jpg", L".jpg"),         "Self: jpg -> .jpg");
+    TEST(!FileFilter::ConvertsOntoItself(L"C:\\x\\a.jpeg", L".jpg"),       "Self: jpeg -> .jpg writes a new a.jpg");
+    TEST(!FileFilter::ConvertsOntoItself(L"C:\\x\\a.webp", L".png"),       "Self: webp -> .png");
+    TEST(!FileFilter::ConvertsOntoItself(L"C:\\x\\a.png.webp", L".png"),   "Self: only the last extension counts");
+    TEST(!FileFilter::ConvertsOntoItself(L"C:\\x\\noext", L".png"),        "Self: no extension");
+
     // --- Submenu order (spec: flat, Settings last, no separator) ---
     {
         using rtclick::SubCommand;
@@ -201,6 +270,29 @@ int wmain()
                     factory->Release();
                 }
                 TEST(parent != nullptr, "Lifetime: parent command instantiates");
+
+                // --- Submenu through the real DLL with real shell selections ---
+                if (parent)
+                {
+                    if (auto* twoPng = MakeSelection({L"a.png", L"b.png"}))
+                    {
+                        auto shown = VisibleSubcommands(parent, twoPng);
+                        TEST(!Contains(shown, L"Copy as PNG"),    "Submenu: two .png = no Copy as PNG");
+                        TEST(!Contains(shown, L"Convert to PNG"), "Submenu: two .png = no Convert to PNG");
+                        TEST(Contains(shown, L"Settings…"),       "Submenu: two .png = Settings…");
+                        twoPng->Release();
+                    }
+                    else TEST(false, "Submenu: build two-.png selection");
+
+                    if (auto* onePng = MakeSelection({L"a.png"}))
+                    {
+                        auto shown = VisibleSubcommands(parent, onePng);
+                        TEST(Contains(shown, L"Copy as PNG"),     "Submenu: one .png = Copy as PNG");
+                        onePng->Release();
+                    }
+                    else TEST(false, "Submenu: build one-.png selection");
+                }
+
                 if (parent)
                 {
                     TEST(canUnloadNow() == S_FALSE, "Lifetime: refuses unload while the parent command is alive");
