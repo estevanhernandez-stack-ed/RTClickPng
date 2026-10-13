@@ -48,6 +48,15 @@ internal static class ConvertCommand
             return (int)ExitCode.SourceNotFound;
         }
 
+        // Never convert a file onto itself (photo.jpg -> photo.jpg from a mixed selection): that
+        // re-encodes the user's original.  Refused under every policy, including force, and before
+        // the destination-exists check so the Shell Extension never prompts to overwrite an original.
+        if (string.Equals(Path.GetFullPath(source), Path.GetFullPath(destination), StringComparison.OrdinalIgnoreCase))
+        {
+            Console.Error.WriteLine($"convert: source and destination are the same file: {source}");
+            return (int)ExitCode.Generic;
+        }
+
         // Overwrite enforcement.  Engine is non-interactive: the Shell Extension owns the prompt
         // and signals the decision by passing --overwrite-policy=force or =skip on retry.
         if (File.Exists(destination))
