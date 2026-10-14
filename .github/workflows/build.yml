@@ -79,9 +79,14 @@ jobs:
         shell: pwsh
         run: |
           msbuild tests/ShellExtension.Tests/ShellExtension.Tests.vcxproj /p:Configuration=Release /p:Platform=x64 /v:minimal
-          $exitCode = & "tests/ShellExtension.Tests/bin/Release/ShellExtensionTests.exe"
-          Write-Host "C++ tests exit code: $LASTEXITCODE"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Print the runner's ok/FAIL lines (they used to be swallowed into a variable), and fail on
+          # SKIP: the DLL-backed lifetime and submenu tests skip when ShellExtension.dll isn't found.
+          $out = & "tests/ShellExtension.Tests/bin/Release/ShellExtensionTests.exe" 2>&1
+          $code = $LASTEXITCODE
+          $out | ForEach-Object { Write-Host $_ }
+          Write-Host "C++ tests exit code: $code"
+          if ($code -ne 0) { exit $code }
+          if ($out -cmatch '^\s*SKIP:') { Write-Host "::error::C++ tests skipped the DLL-backed cases (ShellExtension.dll not found)"; exit 1 }
 
       - name: Decode signing cert
         if: matrix.configuration == 'Release' && env.PFX_BASE64 != ''

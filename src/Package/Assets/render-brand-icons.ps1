@@ -61,6 +61,8 @@ public static class RtClickIcon
         bmp.Save(path, ImageFormat.Png);
     }
 
+    // Context-menu icon frame: the glyph alone on transparency, like every other menu entry's icon.
+    // The navy tile + glow (the Store tiles' look) read as a dim square at 16 px on a dark menu.
     static byte[] RenderSquarePng(int size)
     {
         using var bmp = new Bitmap(size, size, PixelFormat.Format32bppArgb);
@@ -68,8 +70,7 @@ public static class RtClickIcon
         g.SmoothingMode = SmoothingMode.AntiAlias;
         g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
         g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        g.Clear(Bg);
-        DrawGlow(g, size, size);
+        g.Clear(Color.Transparent);
         DrawGlyph(g, size, size);
         using var ms = new MemoryStream();
         bmp.Save(ms, ImageFormat.Png);
