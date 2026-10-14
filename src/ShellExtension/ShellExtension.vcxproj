@@ -92,6 +92,9 @@
     <ClInclude Include="EngineLauncher.h" />
     <ClInclude Include="Notifier.h" />
     <ClInclude Include="ClipboardWriter.h" />
+    <ClInclude Include="SubCommandOrder.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="ParentCommand.h" />
   </ItemGroup>
 
   <ItemGroup>
@@ -106,6 +109,11 @@
     <ClCompile Include="EngineLauncher.cpp" />
     <ClCompile Include="Notifier.cpp" />
     <ClCompile Include="ClipboardWriter.cpp" />
+    <ClCompile Include="ParentCommand.cpp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ResourceCompile Include="ShellExtension.rc" />
   </ItemGroup>
 
   <ItemGroup>

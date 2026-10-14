@@ -76,6 +76,10 @@ namespace {
         std::wstring firstError;
         for (const auto& src : paths)
         {
+            // Already in the target format (a.jpg in a mixed selection, Convert to JPEG): its output
+            // path is itself.  Skip it, neither success nor failure; originals are never modified.
+            if (FileFilter::ConvertsOntoItself(src, targetExt)) continue;
+
             auto dst = SwapExtension(src, targetExt);
 
             auto runOnce = [&](const wchar_t* policy) {
@@ -291,18 +295,18 @@ IFACEMETHODIMP CopyAsJpegCommand::Invoke(IShellItemArray* items, IBindCtx*) noex
     return S_OK;
 }
 
-// ============ Right Click PNG Settings... ============
+// ============ Settings… ============
 
 IFACEMETHODIMP OpenSettingsCommand::GetTitle(IShellItemArray*, LPWSTR* title) noexcept
 {
-    return SHStrDupW(L"Right Click PNG settings…", title);
+    return SHStrDupW(L"Settings…", title);
 }
 
 IFACEMETHODIMP OpenSettingsCommand::GetState(IShellItemArray* items, BOOL, EXPCMDSTATE* state) noexcept
 {
-    // Show whenever any of our other verbs would show — reuse the supported-extension gate.
+    // Same gate as the parent, so the flyout always has at least this item.
     auto paths = GetSelectionPaths(items);
-    *state = FileFilter::AllSupported(paths) ? ECS_ENABLED : ECS_HIDDEN;
+    *state = FileFilter::ShouldShowParent(paths) ? ECS_ENABLED : ECS_HIDDEN;
     return S_OK;
 }
 

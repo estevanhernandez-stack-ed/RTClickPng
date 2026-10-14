@@ -1,6 +1,11 @@
 #include "pch.h"
 #include "ConvertToPngCommand.h"
 
+// WRL's Module<InProc> StaticStorage is over-aligned by design; the SDK header raises C4324 when
+// instantiated, and /WX would fail the build on it.  Scoped to this file, the only Module user.
+#pragma warning(disable: 4324)
+#include "ParentCommand.h"
+
 using namespace rtclick;
 
 std::atomic<long> g_dllRefCount = 0;
@@ -43,6 +48,10 @@ extern "C" HRESULT WINAPI DllGetClassObject(REFCLSID clsid, REFIID riid, LPVOID*
     if (!ppv) return E_POINTER;
     *ppv = nullptr;
 
+    // Create the WRL module before any object exists: RuntimeClass objects only count themselves
+    // toward DllCanUnloadNow once the module singleton is alive.
+    Microsoft::WRL::Module<Microsoft::WRL::InProc>::GetModule();
+
     if (IsEqualCLSID(clsid, CLSID_ConvertToPngCommand))
     {
         auto f = Microsoft::WRL::Make<CommandClassFactory<ConvertToPngCommand>>();
@@ -68,10 +77,18 @@ extern "C" HRESULT WINAPI DllGetClassObject(REFCLSID clsid, REFIID riid, LPVOID*
         auto f = Microsoft::WRL::Make<CommandClassFactory<OpenSettingsCommand>>();
         return f ? f->QueryInterface(riid, ppv) : E_OUTOFMEMORY;
     }
+    if (IsEqualCLSID(clsid, CLSID_RightClickPngParent))
+    {
+        auto f = Microsoft::WRL::Make<CommandClassFactory<RightClickPngParentCommand>>();
+        return f ? f->QueryInterface(riid, ppv) : E_OUTOFMEMORY;
+    }
     return CLASS_E_CLASSNOTAVAILABLE;
 }
 
 extern "C" HRESULT WINAPI DllCanUnloadNow()
 {
-    return g_dllRefCount.load() == 0 ? S_OK : S_FALSE;
+    // Live objects (commands, the submenu enumerator, factories) plus explicit LockServer locks.
+    // dllhost calls CoFreeUnusedLibraries; unloading under a live object crashes the surrogate.
+    auto& module = Microsoft::WRL::Module<Microsoft::WRL::InProc>::GetModule();
+    return (module.GetObjectCount() == 0 && g_dllRefCount.load() == 0) ? S_OK : S_FALSE;
 }

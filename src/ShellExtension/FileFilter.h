@@ -63,6 +63,19 @@ public:
     /// Copy-as-JPEG verb visibility.  Same rules as Copy-as-PNG but requires the JPEG toggle.
     /// </summary>
     static bool ShouldShowCopyAsJpeg(const std::vector<std::wstring>& paths, bool jpegVariantsEnabled) noexcept;
+
+    /// <summary>
+    /// Parent "Right Click to PNG" verb (and its Settings child) visibility.  Must be true whenever
+    /// any child verb is visible, so the flyout is never empty.  FileFilterTests pins that invariant.
+    /// </summary>
+    static bool ShouldShowParent(const std::vector<std::wstring>& paths) noexcept;
+
+    /// <summary>
+    /// True when converting <paramref name="source"/> to <paramref name="targetExt"/> (leading dot)
+    /// would write onto the source itself, e.g. a.jpg in a mixed selection given Convert to JPEG.
+    /// The batch skips those: originals are never modified.
+    /// </summary>
+    static bool ConvertsOntoItself(std::wstring_view source, std::wstring_view targetExt) noexcept;
 };
 
 } // namespace rtclick

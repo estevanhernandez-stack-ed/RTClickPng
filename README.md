@@ -32,11 +32,14 @@ install with `Add-AppxPackage -AllowUnsigned` under Windows 11 Developer Mode.
 
 | You right-click… | You see |
 | --- | --- |
-| `.webp` / `.avif` / `.heic` / `.heif` / `.jpg` / `.bmp` / `.tif` / `.gif` | **Convert to PNG**, **Copy as PNG** |
-| `.png` | **Copy as PNG** (workflow win — one-click paste) |
-| A supported image with *Show JPEG variants* turned on | Adds **Convert to JPEG** and **Copy as JPEG** |
-| Multiple files selected | *Convert to PNG* for the batch; *Copy as PNG* hides (single-select only) |
-| A file whose extension isn't in the list | No verbs from us. Silent. |
+| `.webp` / `.avif` / `.heic` / `.heif` / `.jpg` / `.bmp` / `.tif` / `.gif` | **Right Click to PNG →** *Convert to PNG*, *Copy as PNG*, *Settings…* |
+| `.png` | **Right Click to PNG →** *Copy as PNG* (workflow win — one-click paste), *Settings…* |
+| A supported image with *Show JPEG variants* turned on | The submenu adds *Convert to JPEG* and *Copy as JPEG*, before *Settings…* |
+| Multiple files selected | *Convert to PNG* for the batch and *Settings…*; *Copy as PNG* hides (single-select only) |
+| A file whose extension isn't in the list | No entry from us. Silent. |
+
+Both the modern and the classic (*Show more options*) menu show a single **Right Click to PNG**
+entry with the app icon; the verbs live in its submenu.
 
 Convert writes the output **next to the source**, same base name, new extension.
 Copy loads the clipboard in three formats (`CF_DIBV5`, `CF_DIB`, registered `PNG`)
@@ -118,7 +121,7 @@ All of this mirrors what the CI pipeline runs — see [`.github/workflows/build.
 ## Settings
 
 Open the branded WPF Settings window from the Start menu tile, or from the
-right-click menu on any supported image via **Right Click PNG → settings…**.
+right-click menu on any supported image via **Right Click to PNG → Settings…**.
 Toggles persist to a JSON file the shell extension reads on every right-click:
 
 ```text
@@ -135,8 +138,8 @@ Hand-editing the file works too — schema and default values documented in
 Check whether your machine is defaulting to the **legacy** Windows 11 context menu
 (the "Show more options" / classic one) instead of the modern short menu. MSIX-packaged
 shell extensions register via `IExplorerCommand` and surface cleanly in the modern
-menu; the legacy menu's bridge flattens grouped submenus inconsistently and sometimes
-only shows one of our verbs.
+menu. Since 0.1.2.0 the classic menu shows the same single entry; if you still see
+nothing, check for the tweak below.
 
 To confirm and fix:
 
@@ -165,7 +168,7 @@ still useful.
 ### "I don't see Convert to JPEG / Copy as JPEG verbs."
 
 They're off by default. Open the Settings window (Start menu → Right Click PNG, or
-right-click any supported image → **Right Click PNG → settings…**) and toggle
+right-click any supported image → **Right Click to PNG → Settings…**) and toggle
 *Show JPEG variants* on. Takes effect on the next right-click, no reboot.
 
 ## Architecture brief

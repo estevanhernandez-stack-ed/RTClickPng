@@ -178,6 +178,21 @@ Explorer right-click file.webp  (single-selection only)
 
 ## Shell Extension (C++/WinRT)
 
+### RightClickPngParentCommand
+
+Registered as the only `desktop4:Verb` per file type since 0.1.2.0; before that, the five commands were registered as separate top-level verbs. CLSID `{582E2707-2A81-491E-986F-145208BF87D2}`, in `ParentCommand.{h,cpp}`.
+
+| Method | Behavior |
+|---|---|
+| `GetTitle` | `Right Click to PNG` (the Partner Center `DisplayName`) |
+| `GetIcon` | `<dir of ShellExtension.dll>\ShellExtension.dll,-101` — the brand `.ico` embedded via `ShellExtension.rc` |
+| `GetFlags` | `ECF_HASSUBCOMMANDS` |
+| `GetState` | `FileFilter::ShouldShowParent` (all items supported), else hidden |
+| `EnumSubCommands` | Fresh `IEnumExplorerCommand` over the five commands below, in `SubCommandOrder.h` order: Convert to PNG, Copy as PNG, Convert to JPEG, Copy as JPEG, Settings… |
+| `Invoke` | `E_NOTIMPL` — a parent with subcommands is never invoked |
+
+Each child keeps its own `GetState`, so per-item visibility (JPEG toggle, single-select Copy) works inside the submenu. The Settings… child uses the parent's gate, so the flyout is never empty.
+
 ### ConvertToPngCommand / CopyAsPngCommand (and JPEG variants)
 
 Each verb is a separate class implementing `IExplorerCommand` + `IInitializeCommand` + `IObjectWithSite`. CLSIDs are declared in the sparse manifest under `<com:ComServer>` and wired to `<desktop4:FileExplorerContextMenus>` extension points.

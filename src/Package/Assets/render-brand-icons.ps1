@@ -61,6 +61,52 @@ public static class RtClickIcon
         bmp.Save(path, ImageFormat.Png);
     }
 
+    // Context-menu icon frame: the glyph alone on transparency, like every other menu entry's icon.
+    // The navy tile + glow (the Store tiles' look) read as a dim square at 16 px on a dark menu.
+    static byte[] RenderSquarePng(int size)
+    {
+        using var bmp = new Bitmap(size, size, PixelFormat.Format32bppArgb);
+        using var g = Graphics.FromImage(bmp);
+        g.SmoothingMode = SmoothingMode.AntiAlias;
+        g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        g.Clear(Color.Transparent);
+        DrawGlyph(g, size, size);
+        using var ms = new MemoryStream();
+        bmp.Save(ms, ImageFormat.Png);
+        return ms.ToArray();
+    }
+
+    /// <summary>
+    /// Multi-size .ico with PNG-compressed frames (supported by the shell on Win11).
+    /// Layout: ICONDIR (6 bytes) + one ICONDIRENTRY (16 bytes) per frame + PNG payloads.
+    /// </summary>
+    public static void RenderIco(int[] sizes, string path)
+    {
+        var frames = new byte[sizes.Length][];
+        for (int i = 0; i < sizes.Length; i++) frames[i] = RenderSquarePng(sizes[i]);
+
+        using var fs = File.Create(path);
+        using var w = new BinaryWriter(fs);
+        w.Write((ushort)0);              // reserved
+        w.Write((ushort)1);              // type: icon
+        w.Write((ushort)sizes.Length);   // frame count
+        int offset = 6 + 16 * sizes.Length;
+        for (int i = 0; i < sizes.Length; i++)
+        {
+            w.Write((byte)(sizes[i] >= 256 ? 0 : sizes[i]));  // width
+            w.Write((byte)(sizes[i] >= 256 ? 0 : sizes[i]));  // height
+            w.Write((byte)0);            // palette colors
+            w.Write((byte)0);            // reserved
+            w.Write((ushort)1);          // color planes
+            w.Write((ushort)32);         // bits per pixel
+            w.Write(frames[i].Length);   // bytes in resource
+            w.Write(offset);             // image offset
+            offset += frames[i].Length;
+        }
+        foreach (var f in frames) w.Write(f);
+    }
+
     public static void RenderWide(int w, int h, string path)
     {
         using var bmp = new Bitmap(w, h, PixelFormat.Format32bppArgb);
@@ -247,6 +293,15 @@ foreach ($i in $items) {
     }
     $bytes = (Get-Item $p).Length
     Write-Host "    created: $($i.Name) ($($i.W)x$($i.H), $([int]($bytes/1024)) KB)"
+}
+
+# Context-menu icon for the shell extension's parent verb, embedded in ShellExtension.dll (rc id 101).
+$ico = Join-Path $assets '..\..\ShellExtension\RightClickPng.ico'
+if ((Test-Path $ico) -and -not $Force) {
+    Write-Host "    skip: RightClickPng.ico"
+} else {
+    [RtClickIcon]::RenderIco([int[]](16, 20, 24, 32, 40, 48), $ico)
+    Write-Host "    created: RightClickPng.ico (16-48 px, $([int]((Get-Item $ico).Length/1024)) KB)"
 }
 
 Write-Host ""

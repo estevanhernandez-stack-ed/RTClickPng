@@ -64,7 +64,21 @@ first build that actually shipped.
 
 ## Unreleased
 
+### Changed
+
+- **One context-menu entry with the app icon, in both menus.** The verbs now
+  live in a single **Right Click to PNG** submenu. In the classic *Show more
+  options* menu they used to appear as loose, iconless items with other apps'
+  entries between them (#2). The settings verb is now just **Settings…**.
+
 ### Fixed
+
+- **Converting a mixed selection could overwrite an original.** Selecting a
+  `.jpg` with other images and choosing *Convert to JPEG* (or a `.png` with
+  *Convert to PNG*) sent that file onto its own path: re-encoded in place, or an
+  "already exists. Overwrite?" prompt about the original itself. Files already
+  in the target format are now skipped, and the engine refuses to write a file
+  onto itself under any overwrite setting.
 
 - **Settings no longer writes a log on every launch.** 0.1.1.0 wrote a startup
   trace to `%LOCALAPPDATA%\RTClickPng.Settings.crash.log` each time the

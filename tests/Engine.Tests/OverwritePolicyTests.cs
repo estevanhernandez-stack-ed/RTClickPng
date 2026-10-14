@@ -10,6 +10,7 @@ public class OverwritePolicyTests
 {
     private const int ExitSuccess = 0;
     private const int ExitOverwriteDenied = 4;
+    private const int ExitGeneric = 1;
 
     private static readonly string EnginePath = Path.Combine(
         AppContext.BaseDirectory,   // test output dir has all native DLLs + the engine alongside
@@ -91,6 +92,50 @@ public class OverwritePolicyTests
             Assert.NotEqual(originalLen, newLen);   // contents actually changed
         }
         finally { if (File.Exists(tmp)) File.Delete(tmp); }
+    }
+
+    // "Originals are never modified": a file converted onto its own path (photo.jpg -> photo.jpg,
+    // reachable from a mixed selection) must be refused under every policy, including force, and
+    // before the destination-exists check so confirm never prompts about the user's own original.
+    [Theory]
+    [InlineData("sample.png", "confirm")]
+    [InlineData("sample.png", "skip")]
+    [InlineData("sample.png", "force")]
+    [InlineData("sample-with-icc.jpg", "force")]
+    public void Convert_SourceEqualsDestination_RefusedAndOriginalUntouched(string fixture, string policy)
+    {
+        var dir = Path.Combine(Path.GetTempPath(), $"rtclick-test-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(dir);
+        var original = Path.Combine(dir, fixture);
+        File.Copy(Path.Combine(FixturesDir, fixture), original);
+        var before = File.ReadAllBytes(original);
+        try
+        {
+            var (rc, stderr) = RunEngine("convert", original, original, $"--overwrite-policy={policy}");
+            Assert.Equal(ExitGeneric, rc);
+            Assert.Contains("same file", stderr, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal(before, File.ReadAllBytes(original));
+        }
+        finally { Directory.Delete(dir, recursive: true); }
+    }
+
+    [Fact]
+    public void Convert_SourceEqualsDestination_DetectedAcrossCaseAndRelativePaths()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), $"rtclick-test-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(dir);
+        var original = Path.Combine(dir, "pic.png");
+        File.Copy(Path.Combine(FixturesDir, "sample.png"), original);
+        var before = File.ReadAllBytes(original);
+        try
+        {
+            // Same file spelled differently: upper-cased name, and a "..\<dir>\" detour.
+            var aliased = Path.Combine(dir, "..", Path.GetFileName(dir), "PIC.PNG");
+            var (rc, _) = RunEngine("convert", original, aliased, "--overwrite-policy=force");
+            Assert.Equal(ExitGeneric, rc);
+            Assert.Equal(before, File.ReadAllBytes(original));
+        }
+        finally { Directory.Delete(dir, recursive: true); }
     }
 }
 
