@@ -98,19 +98,25 @@ no HTTP bindings because there's no HTTP.
 # 2. Verify CRT consistency across the 14 native DLLs
 ./build/verify-crt.ps1
 
-# 3. Run tests (61 total: 40 xUnit + 45 C++ — as of v0.1)
+# 3. Run tests (48 xUnit + 91 C++ as of v0.1.2). Build the shell extension first:
+#    the C++ runner loads ShellExtension.dll for its lifetime and submenu tests.
 dotnet test tests/Engine.Tests/ -c Release
+msbuild src/ShellExtension/ShellExtension.vcxproj /p:Configuration=Release /p:Platform=x64
 msbuild tests/ShellExtension.Tests/ShellExtension.Tests.vcxproj /p:Configuration=Release /p:Platform=x64
 ./tests/ShellExtension.Tests/bin/Release/ShellExtensionTests.exe
 
 # 4. Create a dev signing cert (one-time, elevated PowerShell)
 ./build/create-dev-cert.ps1
 
-# 5. Build the MSIX
+# 5. Build the MSIX (outside a VS Developer shell, put vswhere on PATH first)
+$env:PATH = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer;$env:PATH"
 msbuild src/Package/Package.wapproj /p:Configuration=Release /p:Platform=x64 /p:AppxBundle=Never
 
-# 6. Install
-Add-AppxPackage -Path src/Package/AppPackages/Package_0.1.0.0_x64_Test/Package_0.1.0.0_x64.msix
+# 6. Install the loose layout (no signature needed; Developer Mode on).
+#    To test a real signed .msix instead, add /p:AppxPackageSigningEnabled=true
+#    /p:PackageCertificateKeyFile=RTClickPng_TemporaryKey.pfx to step 5 and
+#    Add-AppxPackage the .msix from src/Package/AppPackages/.
+Add-AppxPackage -Register src/Package/bin/x64/Release/AppxManifest.xml
 
 # 7. Restart Explorer to pick up the new shell-extension registration
 taskkill /f /im explorer.exe; Start-Process explorer.exe
@@ -170,6 +176,15 @@ still useful.
 They're off by default. Open the Settings window (Start menu → Right Click PNG, or
 right-click any supported image → **Right Click to PNG → Settings…**) and toggle
 *Show JPEG variants* on. Takes effect on the next right-click, no reboot.
+
+### "The Store says the update failed."
+
+Windows can't replace the menu extension while it's loaded. Restart File Explorer
+(or sign out and back in), then retry the update from the Store's Downloads page:
+
+```powershell
+taskkill /f /im explorer.exe; Start-Process explorer.exe
+```
 
 ## Architecture brief
 
