@@ -5,6 +5,9 @@ Versioning: [SemVer](https://semver.org/).
 
 ## [0.1.2.0] — 2026-10-13
 
+**Shipped to Microsoft Store on 2026-10-14** —
+<https://apps.microsoft.com/detail/9PKKLK6R5WFL>
+
 ### Changed
 
 - **One context-menu entry with the app icon, in both menus.** The verbs now

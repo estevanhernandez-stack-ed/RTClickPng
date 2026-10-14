@@ -31,4 +31,4 @@ Windows 11 context-menu image converter, live on the Microsoft Store. Three proc
 
 ## Releasing
 
-Store mechanics, reviewer notes, and every identity trap hit so far: `docs/ms-store-submission-playbook.md`. Per-release reviewer copy lives in `docs/release/`. Open product work is in `BACKLOG.md` and on the dashboard.
+Store mechanics, reviewer notes, and every identity trap hit so far: `docs/ms-store-submission-playbook.md`. **The GitHub Release is cut only after the Store update is live**, titled `vX.Y.Z — Live on the Microsoft Store`; the 626 Discord feed announces Releases, so cutting one at submission sends people to an update they can't get yet. Tags are three-part (`v0.1.2`) even though the package version is four-part (`0.1.2.0`). Per-release reviewer copy lives in `docs/release/`. Open product work is in `BACKLOG.md` and on the dashboard.
