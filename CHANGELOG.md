@@ -3,6 +3,44 @@
 All notable changes to Right Click PNG. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/).
 
+## [0.1.2.0] — 2026-10-13
+
+### Changed
+
+- **One context-menu entry with the app icon, in both menus.** The verbs now
+  live in a single **Right Click to PNG** submenu. In the classic *Show more
+  options* menu they used to appear as loose, iconless items with other apps'
+  entries between them (#2). The settings verb is now just **Settings…**.
+- **The menu icon is the app's glyph on a transparent background.** It used
+  the Store tile's navy square, which read as a dark blot at 16 px.
+
+### Fixed
+
+- **Converting a mixed selection could overwrite an original.** Selecting a
+  `.jpg` with other images and choosing *Convert to JPEG* (or a `.png` with
+  *Convert to PNG*) sent that file onto its own path: re-encoded in place, or an
+  "already exists. Overwrite?" prompt about the original itself. Files already
+  in the target format are now skipped, and the engine refuses to write a file
+  onto itself under any overwrite setting.
+
+- **Settings no longer writes a log on every launch.** 0.1.1.0 wrote a startup
+  trace to `%LOCALAPPDATA%\RTClickPng.Settings.crash.log` each time the
+  settings app opened, outside the package folder, so uninstall left it behind.
+  The settings app now writes a log only when it fails (error type and message,
+  never file contents), to `settings-crash.log` beside `settings.json` in the
+  package's `LocalState` folder. The legacy file is deleted the first time the
+  updated settings app runs.
+
+- **The menu extension could be unloaded while still in use.** It told Windows
+  it was safe to unload as long as nothing had locked it, ignoring the menu and
+  submenu objects Explorer was still holding. It now counts every live object.
+
+### Updating
+
+If the Store reports that the update failed, restart File Explorer (or sign out
+and back in) and retry. Windows cannot replace the menu extension while it is
+loaded; restarting Explorer releases it.
+
 ## [0.1.1.0] — 2026-04-22
 
 **Shipped to Microsoft Store on 2026-04-22** —
@@ -61,29 +99,3 @@ first build that actually shipped.
 - Sideload installation requires Windows 11 Developer Mode and
   `Add-AppxPackage -AllowUnsigned`. Microsoft Store install will be the
   preferred path once certification passes.
-
-## Unreleased
-
-### Changed
-
-- **One context-menu entry with the app icon, in both menus.** The verbs now
-  live in a single **Right Click to PNG** submenu. In the classic *Show more
-  options* menu they used to appear as loose, iconless items with other apps'
-  entries between them (#2). The settings verb is now just **Settings…**.
-
-### Fixed
-
-- **Converting a mixed selection could overwrite an original.** Selecting a
-  `.jpg` with other images and choosing *Convert to JPEG* (or a `.png` with
-  *Convert to PNG*) sent that file onto its own path: re-encoded in place, or an
-  "already exists. Overwrite?" prompt about the original itself. Files already
-  in the target format are now skipped, and the engine refuses to write a file
-  onto itself under any overwrite setting.
-
-- **Settings no longer writes a log on every launch.** 0.1.1.0 wrote a startup
-  trace to `%LOCALAPPDATA%\RTClickPng.Settings.crash.log` each time the
-  settings app opened, outside the package folder, so uninstall left it behind.
-  The settings app now writes a log only when it fails (error type and message,
-  never file contents), to `settings-crash.log` beside `settings.json` in the
-  package's `LocalState` folder. The legacy file is deleted the first time the
-  updated settings app runs.
