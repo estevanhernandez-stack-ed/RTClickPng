@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Right Click PNG store art</title>
+<!--
+  Single source for the Microsoft Store poster (9:16) and box art (1:1).
+  Layout is chosen from the viewport's aspect ratio, so every export comes from one file
+  and the sizes cannot drift apart (same approach as ROROROblox docs/store/graphics).
+  Fonts are local (./fonts), so rendering needs no network. See README.md for the exports.
+-->
+<style>
+  @font-face { font-family: "Space Grotesk"; src: url("fonts/SpaceGrotesk-Variable.woff2") format("woff2"); font-weight: 300 700; }
+  @font-face { font-family: "Inter"; src: url("fonts/Inter-Variable.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-Variable.woff2") format("woff2"); font-weight: 100 800; }
+
+  :root {
+    --navy-deep: #0f1f31; --navy: #192e44; --navy-soft: #223a54;
+    --cyan: #17d4fa; --magenta: #f22f89; --text: #e6ebf3; --muted: #8e9bad;
+    --u: 1vmin;   /* everything scales with the short side */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; background: var(--navy-deep); }
+  body {
+    font-family: "Inter", system-ui, sans-serif; color: var(--text);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
+  }
+  /* Brand glows: cyan up top, magenta low, on the deep navy field. */
+  body::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(60vmax 45vmax at 50% 28%, rgba(23, 212, 250, 0.16), transparent 60%),
+      radial-gradient(55vmax 40vmax at 50% 105%, rgba(242, 47, 137, 0.14), transparent 60%);
+  }
+  /* Faint hex outline behind the mark, as on the Sanduhr art. */
+  .hex { position: absolute; width: calc(78 * var(--u)); opacity: 0.10; top: 50%; left: 50%; transform: translate(-50%, -62%); }
+
+  .eyebrow, .footer {
+    font-family: "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--muted); font-size: calc(2.0 * var(--u)); position: relative;
+  }
+  .tile {
+    position: relative; width: calc(34 * var(--u)); aspect-ratio: 1; border-radius: 22%;
+    background: linear-gradient(160deg, var(--navy-soft), var(--navy) 55%, var(--navy-deep));
+    box-shadow: 0 0 calc(10 * var(--u)) rgba(23, 212, 250, 0.22), inset 0 0 0 calc(0.25 * var(--u)) rgba(23, 212, 250, 0.18);
+    display: grid; place-items: center;
+  }
+  .tile svg { width: 78%; height: 78%; }
+  .name {
+    font-family: "Space Grotesk", sans-serif; font-weight: 500; letter-spacing: -0.01em;
+    font-size: calc(9.6 * var(--u)); line-height: 1; position: relative; white-space: nowrap;
+  }
+  .rule { height: calc(0.45 * var(--u)); width: calc(30 * var(--u)); border-radius: 99px;
+          background: linear-gradient(90deg, var(--cyan), var(--magenta)); position: relative; }
+  .tagline { font-size: calc(3.3 * var(--u)); color: #c9d2de; position: relative; text-align: center; }
+  .features { display: none; list-style: none; position: relative; }
+  .features li { display: grid; grid-template-columns: auto 1fr; column-gap: calc(2.2 * var(--u)); align-items: start; }
+  .features li + li { margin-top: calc(3.2 * var(--u)); }
+  .dot { width: calc(1.5 * var(--u)); aspect-ratio: 1; border-radius: 50%; margin-top: calc(1.3 * var(--u)); background: var(--cyan); }
+  .features li:nth-child(even) .dot { background: var(--magenta); }
+  .feat { font-size: calc(3.4 * var(--u)); font-weight: 600; color: var(--text); }
+  .sub { font-size: calc(2.6 * var(--u)); color: var(--muted); margin-top: calc(0.6 * var(--u)); }
+  .sign { display: none; font-family: "Space Grotesk", sans-serif; color: var(--muted); font-size: calc(2.6 * var(--u)); position: relative; }
+
+  /* 1:1 box art: mark, name, tagline, version footer. */
+  body > * + * { margin-top: calc(4.2 * var(--u)); }
+  .eyebrow { margin-bottom: calc(1 * var(--u)); }
+  .footer { margin-top: calc(8 * var(--u)); }
+
+  /* 9:16 poster: larger mark, then the four features and the signature. */
+  @media (max-aspect-ratio: 85/100) {
+    :root { --u: 1vmin; }
+    /* The short side is the width here, so the 150-unit height budget is: top pad 10, eyebrow,
+       tile 38, name, rule, tagline (~75), features (~49), signature band (~12). */
+    body { justify-content: flex-start; padding-top: calc(10 * var(--u)); }
+    body > * + * { margin-top: calc(3.2 * var(--u)); }
+    .tile { width: calc(38 * var(--u)); }
+    .hex { width: calc(92 * var(--u)); transform: translate(-50%, -96%); }
+    .name { font-size: calc(10.4 * var(--u)); }
+    .rule { width: calc(34 * var(--u)); height: calc(0.6 * var(--u)); }
+    .tagline { font-size: calc(3.6 * var(--u)); max-width: 80vw; }
+    .features { display: block; margin-top: calc(7 * var(--u)) !important; }
+    .features li + li { margin-top: calc(2.6 * var(--u)); }
+    .footer { display: none; }
+    .sign { display: block; position: absolute; bottom: calc(9 * var(--u)); margin: 0; }
+  }
+</style>
+</head>
+<body>
+  <svg class="hex" viewBox="0 0 100 100" aria-hidden="true">
+    <polygon points="50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5" fill="none" stroke="#17d4fa" stroke-width="0.6"/>
+  </svg>
+
+  <div class="eyebrow">626Labs LLC · Windows 11</div>
+
+  <!-- The app glyph, vector. Geometry mirrors DrawGlyph in src/Package/Assets/render-brand-icons.ps1
+       (100-unit box: scale 48, doc 39.36 x 48, fold 12.6, cursor 27.84). -->
+  <div class="tile">
+    <svg viewBox="0 0 100 100" role="img" aria-label="Right Click PNG">
+      <polygon points="28.35,23.6 55.12,23.6 67.71,36.2 67.71,71.6 28.35,71.6"
+               fill="#192e44" fill-opacity="0.86" stroke="#17d4fa" stroke-width="2.4" stroke-linejoin="round"/>
+      <polygon points="55.12,23.6 55.12,36.2 67.71,36.2" fill="#f22f89"/>
+      <text x="48.03" y="51.6" text-anchor="middle" fill="#17d4fa"
+            font-family="Space Grotesk, Inter, sans-serif" font-weight="700" font-size="14.4">PNG</text>
+      <polygon points="60.56,60.56 60.56,88.4 68.36,80.61 74.48,91.18 78.38,89.51 72.25,78.93 80.61,77.26"
+               fill="#17d4fa" stroke="#0f1f31" stroke-width="1.92" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <h1 class="name">Right Click PNG</h1>
+  <div class="rule"></div>
+  <p class="tagline">Convert images to PNG from the right-click menu.</p>
+
+  <ul class="features">
+    <li><span class="dot"></span><div><div class="feat">Convert in place</div><div class="sub">The new .png lands next to the original.</div></div></li>
+    <li><span class="dot"></span><div><div class="feat">Copy as PNG, paste anywhere</div><div class="sub">Teams, Slack, Figma, Paint and the rest.</div></div></li>
+    <li><span class="dot"></span><div><div class="feat">WebP, AVIF, HEIC and more</div><div class="sub">The formats other apps reject.</div></div></li>
+    <li><span class="dot"></span><div><div class="feat">Offline, no account</div><div class="sub">No telemetry. Originals never touched.</div></div></li>
+  </ul>
+
+  <div class="footer">v0.1.2 · Windows desktop · 626Labs LLC</div>
+  <div class="sign">Imagine Something Else.</div>
+</body>
+</html>
