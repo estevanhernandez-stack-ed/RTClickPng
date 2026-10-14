@@ -18,7 +18,7 @@ The same PNGs live in `store-listing-console/apps/rtclickpng/assets/graphics/`.
 `store-art.source.html` is the single source. It picks its layout from the viewport's aspect
 ratio (narrower than 85:100 gets the poster layout with the feature list), so every size comes from
 one file and they can't drift apart. The glyph is vector SVG mirroring `DrawGlyph` in
-`src/Package/Assets/render-brand-icons.ps1`. Fonts are local in `fonts/`, so no network is needed.
+`src/Package/Assets/render-brand-icons.ps1`. Fonts are local in `fonts/`: the full canonical sets from the `626labs-design` repo (same files as the LabShare brand kit), so no network is needed. The hub's `fonts/` are web subsets; don't copy from there.
 
 Serve over HTTP (headless capture of a `file://` page won't load the fonts), then screenshot
 each size with headless Edge:
